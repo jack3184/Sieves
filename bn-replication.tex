@@ -1,0 +1,51 @@
+\documentclass[11pt,letterpaper]{article}                  % Define document class
+
+%! Mandatory packages
+\usepackage[utf8]{inputenc}                                %! Character encoding
+\usepackage[T1]{fontenc}                                   %! Font encoding
+\usepackage[english]{babel}                                %! Language setting
+
+% Set path
+\newcommand{\path}{/Users/Attila/OneDrive - Duke University/texts/latex-sample/Preamble}
+
+% Text packages
+\input{"\path/packText.tex"}
+
+% Figure/table packages
+\input{"\path/packFigure.tex"}
+
+% Math packages
+\input{"\path/packMath.tex"}
+
+% Graphics packages
+\input{"\path/packGraph.tex"}
+
+% Title
+\title{Replication study}
+\author{\Large Jackson Bunting and Attila Gyetvai\footnote{Department of Economics, Duke University. Emails: \href{mailto:jackson.bunting@duke.edu}{jackson.bunting@duke.edu}, \href{mailto:attila.gyetvai@duke.edu}{attila.gyetvai@duke.edu}. All errors are ours.}}
+\date{\today}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+\begin{align*}
+	\hat{h}(x) &= p^K (x)' \hat{\beta} \\
+	p^K (x)' &= \begin{pmatrix}
+		\left[ y_J^{p(k)} w_J^{q(k)} \right] ' \\
+		\left[ \sum_{j=1}^{J-1} \left( \ell_j^{m(k)} y_j^{p(k)} w_j^{q(k)} - \ell_j^{m(k)} y_{j+1}^{p(k)} w_{j+1}^{q(k)} \right) \right]'
+	\end{pmatrix}
+\end{align*}
+
+\end{document}
+
+
+
+
+
+
+
+
