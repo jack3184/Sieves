@@ -1,0 +1,4 @@
+- reproduce simple dgp (linear example we did on board)
+- fill in gaps regarding (p(k), m(k) fns. choosing K. defining l)
+- bring it to data?
+- add covariates?
