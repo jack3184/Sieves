@@ -32,12 +32,82 @@
 
 \maketitle
 
+\section{Framework}
+
+Following \citet{Blomquist2002}.
+
+\begin{align*}
+	h_i^* &\equiv \pi (y_i, w_i, v_i); \\
+	\bar{\pi} (y_i, w_i) &\equiv \int \pi(y_i, w_i, v_i) g(v_i) \, d v_i; \\
+	\mu(y_i, w_i, \ell_i) &= \int_{-\infty}^{\pi^{-1}(y_i, w_i, \ell_i)} \left[ \pi (y_i, w_i, v_i) - \ell_i \right] g(v_i) \, d v_i.
+\end{align*}
+
+\section{A simple example}
+
+Suppose that an individual $i$ is endowed with $y_i$ nonlabor income and 1 unit of time, which she can divide between work $h_i$ and leisure $1-h_i$.
+Therefore she can spend up to $y_i + w_i h_i$ where $w_i$ is her wage rate.
+Assume for the moment that her budget set is linear; we introduce nonlinearities in a moment.
+
+Individual $i$'s preferences towards consumption $c_i$ and work $h_i$ can be represented by a Cobb-Douglas utility function; consequently the optimization problem she faces is 
+\begin{align*}
+	\max_{c_i, h_i} \enskip c_i^{1-v_i} (1-h_i)^{v_i} \qquad \text{s.t.} \enskip c_i \leq y_i + w_i h_i
+\end{align*}
+where $v_i$ is an unknown scalar specific to $i$.
+The resulting labor supply function is
+\begin{align*}
+	h^*_i &\equiv \pi (y_i, w_i, v_i) = 1 - \frac{(1-v_i) y_i}{w_i}.\footnotemark
+\end{align*}
+\footnotetext{Calculations can be found in Appendix \ref{app:CD}.}
+We calculate
+\begin{align*}
+	\bar{\pi} (y_i, w_i) &= 1 - \frac{y_i}{2 w_i} \qquad \text{and} \\
+\end{align*}
+
+
+\section{Estimation}
+
 \begin{align*}
 	\hat{h}(x) &= p^K (x)' \hat{\beta} \\
 	p^K (x)' &= \begin{pmatrix}
 		\left[ y_J^{p(k)} w_J^{q(k)} \right] ' \\
 		\left[ \sum_{j=1}^{J-1} \left( \ell_j^{m(k)} y_j^{p(k)} w_j^{q(k)} - \ell_j^{m(k)} y_{j+1}^{p(k)} w_{j+1}^{q(k)} \right) \right]'
 	\end{pmatrix}
+\end{align*}
+
+\bibliographystyle{apalike}
+\bibliography{project}
+
+\appendix
+
+\section{Cobb-Douglas utility}
+\label{app:CD}
+
+The maximization problem can be equivalently written as
+\begin{align*}
+	&\max_{h_i} \enskip (y_i + w_i h_i)^{1-v_i} (1-h_i)^{v_i}.
+	\intertext{The first-order condition is}
+	0 &= (1-v_i) (y_i + w_i h_i^*)^{-v_i} w_i (1-h_i^*)^{v_i} + v_i (y_i + w_i h_i^*)^{1-v_i} (1-h_i^*)^{v_i-1} \cdot (-1) \\
+	  &= (1-v_i) w_i (1-h_i^*) - v_i (y_i + w_i h_i^*) \\
+	  &= (1-v_i) w_i - (1-v_i) w_i h_i^* - v_i y_i - v_i w_i h_i^* \\
+	  &= (1-v_i) w_i - w_i h_i^* - v_i y_i.
+	\intertext{Rearranging yields}
+	h_i^* &\equiv \pi (y_i, w_i, v_i) = 1 - v_i - \frac{v_i y_i}{w_i}.
+\end{align*}
+We get $\bar{\pi}_i (y_i, w_i)$ by integrating $v_i$ out:
+\begin{align*}
+	\bar{\pi}_i (y_i, w_i) &= \int_0^1 1 - v_i - \frac{v_i y_i}{w_i} \, d v_i = \left[ v_i - \frac{v_i^2}{2} - \frac{v_i^2 y_i}{2 w_i} \right]_{v_i=0}^1 = \frac{1}{2} - \frac{y_i}{2 w_i}.
+	\intertext{Furthermore, we calculate the inverse of $\pi$ w.r.t $v_i$ as follows:}
+	\ell_i &= 1 - v_i - \frac{v_i y_i}{w_i} \\
+	w_i \ell_i &= w_i - v_i w_i - v_i y_i = w_i - v_i (w_i + y_i) \\
+	v_i (w_i + y_i) &= w_i - w_i \ell_i = w_i (1-\ell_i) \\
+	v_i &= \frac{w_i (1-\ell_i)}{w_i + y_i} \equiv \pi^{-1} (y_i, w_i, \ell_i)
+	\intertext{Finally, we derive $\mu (y_i, w_i, \ell_i)$ as}
+	\mu (y_i, w_i, \ell_i) &= \int_0^{\frac{w_i (1-\ell_i)}{w_i + y_i}} 1 - v_i - \frac{v_i y_i}{w_i} - \ell_i \, d v_i \\
+	&= \left[ v_i - \frac{v_i^2}{2} - \frac{v_i^2 y_i}{2 w_i} - \ell_i v_i \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
+	&= \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \left( 1 + \frac{y_i}{w_i} \right) \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
+	&= \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \frac{w_i + y_i}{w_i} \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
+	&= \frac{w_i (1-\ell_i)^2}{w_i + y_i} - \frac{w_i^2 (1-\ell_i)^2}{2 (w_i + y_i)^2} \frac{w_i + y_i}{w_i} \\
+	&= \frac{w_i (1-\ell_i)^2}{2 (w_i + y_i)}
 \end{align*}
 
 \end{document}
