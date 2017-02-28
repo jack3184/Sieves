@@ -197,53 +197,47 @@ P <- P.fn(y,w,l)
 # Estimation
 SieveReg(20, 'fig2')
 
-#### policy simulation (\hat{M})
-### .a is for `after', .b is for before
-### seems pretty sensitive to changing parameters: it makes sense, since taking ^p of data, small initial changes mean big changes in basis
+#### Policy simulation ####
+# .a is for `after', .b is for `before'
+# Seems pretty sensitive to changing parameters: it makes sense, since taking ^p of data, small initial 
+# changes mean big changes in basis
 P.b <- P
 y.a <- y
 w.a <- w
 l.a <- l
 
-## min.wage
+# Minimum wage
 w.a[w.a<=(mean(w.a)*.4)] <- mean(w.a)*.4
-l.a <- pmin(1, (kink)/w.a[,1])
-
-## increase welfare
-# y.a[,1] <- 15
-
-## change tax
-# tax.r <- .2
-# w.a[(l.a<1),2] <- w.a[(l.a<1),1]*(1-tax.r)
-# w.a[(l.a==1),2] <- 1
-# y.a[,2] <- l.a*(w.a[,1]-w.a[,2]) + y.a[,1]
+l.a                      <- pmin(1, (kink)/w.a[,1])
 
 K.pol <- K.opt+5
 
 P.a <- P.fn.base(y.a,w.a,l.a)
-P.a <- cbind( rep(1,n), P.a[,colnames(P.a) %in% colnames(P)])
+P.a <- cbind(rep(1,n), P.a[,colnames(P.a) %in% colnames(P)])
 
 P.b.mean <- apply(P.b, 2, mean)
 P.a.mean <- apply(P.a, 2, mean)
-## functions
+
+# Functions
 {
-B <- function(K){ matrix(P.b.mean[1:K],nrow=K) }
-D <- function(K) {matrix(P.a.mean[1:K],nrow=K)-B(K)}
-theta.fn <- function(K){ (t(D(K)) %*% beta(K)) / (t(B(K)) %*% beta(K))}
-C <- function(K) {(D(K) - rep(theta.fn(K))* B(K)) / rep(t(B(K)) %*% beta(K))}
-Q.hat.fn <- function(K){ t(P.b[,1:K])%*% P.b[,1:K]/n}
-Sigma.hat.fn <- function(K){x <- array(NA, dim=c(K,K,n))
-  for(i in 1:n){t(t(P[i,1:K])) %*% t(P[i,1:K]) -> x[,,i]}
+B            <- function(K){ matrix(P.b.mean[1:K], nrow=K) }
+D            <- function(K){ matrix(P.a.mean[1:K], nrow=K) - B(K)}
+theta.fn     <- function(K){ (t(D(K)) %*% beta(K)) / (t(B(K)) %*% beta(K)) }
+C            <- function(K){ (D(K) - rep(theta.fn(K))* B(K)) / rep(t(B(K)) %*% beta(K)) }
+Q.hat.fn     <- function(K){ t(P.b[,1:K]) %*% P.b[,1:K]/n }
+Sigma.hat.fn <- function(K){
+  x <- array(NA, dim=c(K,K,n))
+  for(i in 1:n){ t(t(P[i,1:K])) %*% t(P[i,1:K]) -> x[,,i] }
   x <- x * rep( (h-P.b[,1:K] %*% beta(K))^2, each=K*K)/rep(n)
   apply(x, c(1,2), sum)
 }
-SE.m.fn <- function(K){
+SE.m.fn       <- function(K){
   sqrt( t(C(K)) %*% ginv(Q.hat.fn(K)) %*% Sigma.hat.fn(K) %*% ginv(Q.hat.fn(K)) %*% C(K) /rep(n))
 }
 }
 
 M.hat <- sapply(3:K.pol, theta.fn)
-M.SE <-sapply(3:K.pol, SE.m.fn)
+M.SE  <-sapply(3:K.pol, SE.m.fn)
 plot(M.hat)
 plot(M.SE)
 
@@ -251,9 +245,9 @@ Additional.term <- colnames(P)[3:K.pol]
 
 write.table(cbind(name,round(cbind(M.hat,M.SE),4)), 'table1.txt')
 
-### (22 FEb)
-# fix basis generation
-# do M: done 
-# standard errors?
-# produce output for .tex
-# 
+
+
+
+### END OF CODE ####
+
+
