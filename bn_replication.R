@@ -153,20 +153,21 @@ SieveReg <- function (K.max, plotfilename) {
   # This function implements the sieve regression routine outlined above. K.max is the
   # max number of polynomials (not degree!) considered, plotfilename is the name of the
   # saved .pdf file of the CDF of results.
-  start <- Sys.time ()    # Timer
-  CV.mat <- matrix(sapply(1:K.max,CV), ncol=1)
-  CV.opt <- max(CV.mat)
-  K.opt  <- which.max(CV.mat)
-  Sys.time () - start
-  K.opt
+  t.start <- Sys.time ()    # Timer on
+  CV.mat  <- matrix(sapply(1:K.max,CV), ncol=1)
+  CV.opt  <- max(CV.mat)
+  K.opt   <- which.max(CV.mat)
+  t.end   <- Sys.time () - t.start    # Timer off
   
   pdf(file = paste(plotfilename, '.pdf', sep=''))
   plot(ecdf(h), col="GREEN")                            # CDF of h
   lines(ecdf(P[,1:K.opt] %*% beta(K.opt)), col="BLUE")  # CDF of h.hat
   lines(ecdf(h.bar), col="RED")                         # CDF of h.bar
   dev.off()
+  
+  return(list(CV.mat, CV.opt, K.opt, t.end))
 }
-SieveReg(20, 'fig1')
+results1 <- SieveReg(20, 'fig1')
 
 
 #### Labor supply -- isoelastic utility ####
@@ -195,7 +196,7 @@ h        <- pi(y[,1],w[,1],v)
 P <- P.fn(y,w,l)
 
 # Estimation
-SieveReg(20, 'fig2')
+results2 <- SieveReg(20, 'fig2')
 
 #### Policy simulation ####
 # .a is for `after', .b is for `before'
