@@ -209,17 +209,16 @@ results2 <- SieveReg(20, 'fig2')
 
 #### Policy simulation ####
 # .a is for `after', .b is for `before'
-# Seems pretty sensitive to changing parameters: it makes sense, since taking ^p of data, small initial 
-# changes mean big changes in basis
 P.b <- P
 y.a <- y
 w.a <- w
 l.a <- l
 
-# Minimum wage
+# Minimum wage: new budget sets
 w.a[w.a<=(mean(w.a)*.4)] <- mean(w.a)*.4
 l.a                      <- pmin(1, (b.k)/w.a[,1])
 
+# Generating new basis
 K.opt <- as.integer(results2[3])
 K.pol <- K.opt+5
 
@@ -229,8 +228,7 @@ P.a <- cbind(rep(1,n), P.a[,colnames(P.a) %in% colnames(P)])
 P.b.mean <- apply(P.b, 2, mean)
 P.a.mean <- apply(P.a, 2, mean)
 
-# Functions
-{
+# These functions follow B&N section 3.4
 B            <- function(K){ matrix(P.b.mean[1:K], nrow=K) }
 D            <- function(K){ matrix(P.a.mean[1:K], nrow=K) - B(K)}
 theta.fn     <- function(K){ (t(D(K)) %*% beta(K)) / (t(B(K)) %*% beta(K)) }
@@ -244,7 +242,6 @@ Sigma.hat.fn <- function(K){
 }
 SE.m.fn       <- function(K){
   sqrt( t(C(K)) %*% ginv(Q.hat.fn(K)) %*% Sigma.hat.fn(K) %*% ginv(Q.hat.fn(K)) %*% C(K) /rep(n))
-}
 }
 
 M.hat <- sapply(3:K.pol, theta.fn)
