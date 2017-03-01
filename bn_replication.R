@@ -71,8 +71,8 @@ h.2  <- pmin(pmax(0, pi.fn(y[,2], w[,2], v)), 1)
 # Bunching at the kink
 i.l1      <- h.1 >= l
 i.l2      <- h.2 <= l
-h.1[i.l1] <- l
-h.2[i.l2] <- l
+h.1[i.l1] <- l[i.l1]
+h.2[i.l2] <- l[i.l2]
 
 c.1  <- y[,1] + w[,1]*h.1
 c.2  <- y[,2] + w[,2]*h.2
