@@ -10,6 +10,8 @@
 
 % Text packages
 \input{"\path/packText.tex"}
+\newcommand\citepos[1]{\citeauthor{#1}'s\ (\citeyear{#1})}
+\onehalfspacing
 
 % Figure/table packages
 \input{"\path/packFigure.tex"}
@@ -21,8 +23,8 @@
 \input{"\path/packGraph.tex"}
 
 % Title
-\title{Replication study}
-\author{\Large Jackson Bunting and Attila Gyetvai\footnote{Department of Economics, Duke University. Emails: \href{mailto:jackson.bunting@duke.edu}{jackson.bunting@duke.edu}, \href{mailto:attila.gyetvai@duke.edu}{attila.gyetvai@duke.edu}. All errors are ours.}}
+\title{\citet{Blomquist2002}: \\ ``Nonparametric Estimation with Nonlinear Budget Sets'' \\ \smallskip \Large{A Replication Study}}
+\author{Jackson Bunting and Attila Gyetvai\footnote{Department of Economics, Duke University. Emails: \href{mailto:jackson.bunting@duke.edu}{jackson.bunting@duke.edu}, \href{mailto:attila.gyetvai@duke.edu}{attila.gyetvai@duke.edu}. All errors are ours.}}
 \date{\today}
 
 
@@ -32,27 +34,160 @@
 
 \maketitle
 
+\section{Motivation}
+
+Tax systems typically impose nonlinearities on taxpayers' budget sets, which posit an econometric challenge for the empirical economist.
+Many scholars offered solutions to circumvent this challenge, usually at the expense of making restrictive parametric assumptions on functional forms.
+We replicate a study which is free from such restrictions: the influential paper by \citet{Blomquist2002}.
+Utilizing a sieve regression framework, their study offers an excellent alternative to maximum likelihood estimators reigning at that time.
+
+To simplify their analysis, \citet{Blomquist2002} look at piecewise linear budget sets, and we follow their lead.
+We argue that this simplification is not overly restrictive for at least two reasons.
+First, tax policies and means-tested transfers often impose income progressivity through threshold rules for marginal tax rates.
+Combined with fixed hourly wage rates, this results in continuous piecewise budget sets with kinks.
+Second, even if budget sets are not linear anywhere, a piecewise defined first order polynomial is suitable for approximation.
+
+Our replication study is structured the following way:
+In Section \ref{sec:framework} we discuss the theoretical framework.
+In Section \ref{sec:estimation} we review the estimation procedure.
+In Section \ref{sec:ex1} we illustrate the framework and estimate labor supply using simulated budget set and hours data in a simple example.
+Section \ref{sec:ex2} showcases how estimation breaks down when one of the identifying assumptions does not hold.
+In Section \ref{sec:policy} we conduct a counterfactual policy analysis.
+Finally Section \ref{sec:conclusion} concludes.
+
+
 \section{Framework}
+\label{sec:framework}
 
-Following \citet{Blomquist2002}.
-
+Following \citet{Blomquist2002}, we lay out the framework for estimating labor supply below.
+Assume that individual $i$ maximizes her convex preferences over a convex budget set.
+Her optimal choice of hours can be represented by the labor supply function
 \begin{align*}
-	h_i^* &\equiv \pi (y_i, w_i, v_i); \\
-	\bar{\pi} (y_i, w_i) &\equiv \int \pi(y_i, w_i, v_i) g(v_i) \, d v_i; \\
-	\mu(y_i, w_i, \ell_i) &= \int_{-\infty}^{\pi^{-1}(y_i, w_i, \ell_i)} \left[ \pi (y_i, w_i, v_i) - \ell_i \right] g(v_i) \, d v_i.
+	h_i^* &\equiv \pi (y_i, w_i, v_i)
 \end{align*}
+where $y_i$ denotes nonlabor income, $w_i$ denotes the fixed hourly wage rate, and $v_i$ represents individual heterogeneity that is unobserved by the econometrician.
+As \citet{Blomquist2002} warn, an important feature of this setup is that $\pi(\cdot)$ is not linear in $v_i$.
+We explore the necessity of this assumption by relaxing it; as we demonstrate later, the estimation breaks down when hours are linear in this heterogeneity variable.
+
+Given this underlying theoretical model, \citet{Blomquist2002} focus on estimating the expected hours function
+\begin{align*}
+	\E [h_i | x_i] = \bar{h}(x_i)
+\end{align*}
+where $x_i$ represents the budget set over which individual $i$ optimizes.
+When the budget set is piecewise linear, it is fully characterized by the intercepts and slopes of the linear segments, and the discontinuity points.
+That is, a piecewise linear budget set with $J$ kinks can be described by
+\begin{align*}
+	x_i = (J, \, y_{1i}, \ldots, y_{Ji}, \, w_{1i}, \ldots, w_{Ji}, \, \ell_{1}, \ldots, \ell_{J-1}).
+\end{align*}
+Note that $\ell_{j}$ does not have an $i$ subscript.
+This signals our implicit assumption that the locations of the discontinuity points are identical across individuals---a universal tax schedule is a suitable example.
+
+\citet{Blomquist2002} show the following identification result:
+Define the following functions:
+\begin{align*}
+	\bar{\pi} (y_i, w_i) &\equiv \int \pi(y_i, w_i, v_i) g(v_i) \, d v_i \qquad \text{and} \\
+	\mu(y_i, w_i, \ell_i) &\equiv \int_{-\infty}^{\pi^{-1}(y_i, w_i, \ell_i)} \left[ \pi (y_i, w_i, v_i) - \ell_i \right] g(v_i) \, d v_i.
+\end{align*}
+Then if for all $J$ and $j = 1, \ldots, J$, (i) $\int \abs{\pi (y_j, w_j, v)} \, g(v) d(v) < \infty$, (ii) $\pi(y_j, w_j, v)$ is strictly increasing in $v$ on its support, and (iii) $\Pr (h=0 | x) = 0$, then the expected hours function can be written as
+\begin{align*}
+	\bar{h} (x) = \bar{\pi} (y_J, w_J) + \sum_{j=1}^{J-1} \left[ \mu(y_j, w_j, \ell_j) - \mu(y_{j+1}, w_{j+1}, \ell_j) \right].
+\end{align*}
+That is, expected hours can be additively decomposed over the linear segments representing the budget set.
+We exploit this structure in our simulation.
+
+
+\section{Estimation}
+\label{sec:estimation}
+
+Given the above framework, we now turn to estimation.
+Expected hours can be estimated by running the sieve regression
+\begin{align*}
+	\hat{h}(x) &= p^K (x)' \hat{\beta} = p^K (x)' (P' P)^- P' h
+\end{align*}
+where $p^K (x)$ are $K$ functions that impose the additivity and equality constraints of the expected hours function $\bar{h} (x)$, $P$ is the matrix of these $K$ functions for all sampled individuals, and $(\cdot)^-$ denotes the usual generalized inverse transformation.
+Following \citet{Blomquist2002}, we focus on power series approximations of the following form:
+\begin{align*}
+	p^K (x)' &= \begin{pmatrix}
+		\left[ y_J^{p(k)} w_J^{q(k)} \right] ' \\
+		\left[ \sum_{j=1}^{J-1} \left( \ell_j^{m(k)} y_j^{p(k)} w_j^{q(k)} - \ell_j^{m(k)} y_{j+1}^{p(k)} w_{j+1}^{q(k)} \right) \right]'
+	\end{pmatrix}.
+\end{align*}
+Not surprisingly, the first row approximates $\bar{\pi} (y_J, w_J)$ whereas the second row is an approximation for $\sum_{j=1}^{J-1} [\mu(y_j, w_j, \ell_j) - \mu(y_{j+1}, w_{j+1}, \ell_j)]$.
+
+This estimation procedure is fairly easy to implement.
+Two complications arise, though: (1) how to optimally choose the number of approximating terms $K$, and (2) in what order to include basis functions.
+
+\subsection{Choosing $K$}
+
+We follow \citepos{Blomquist2002} lead in making an optimal choice of $K$.
+We implement a leave-one-out cross validation procedure.
+In a nutshell, we choose that $K$ which minimizes the asymptotic mean squared error.
+Technically we minimize the scale-normalized sum of squared one-step ahead forecast errors from predictions for $i$ using all observations but the $i$th.
+
+A final remark on the optimal choice of $K$: on top of choosing one $K$, the econometrician needs to also set a maximum number of possible terms to consider.
+We construct a large number of basis functions, thus theoretically we can choose from a wide range for $K$.
+This, however, is a computationally burdensome exercise.\footnote{Out of curiosity, we once let the procedure choose $K$ optimally using the whole sieve space. Allowing up to 150 terms, the procedure ran for 45 minutes on a laptop with a quad-core Intel i7 processor.}
+Since we found that the typical $K$ is below 10, we only consider 20 as the maximum number of terms.
+
+
+\subsection{Constructing the basis}
+
+We encountered three issues constructing a sieve space using the power series form.
+The basic idea was to increase the degree of the power series approximation (recall that the approximation is a sum of two power series), by adding individual terms as $K$ increases.
+
+The first issue is that there are multiple terms of the same degree, so there is no natural way to add terms.
+For example, $x^2y^3$ and $x^4y^1$ are both degree 5, so when it comes to adding an extra degree 5 term, which should be added?
+We just picked arbitrarily, as it is reflected in our results below.
+
+The second issue regards linear dependence.
+Quite often additional columns of the basis matrix were linear dependent with existing columns.
+Our solution to this was to exclude the ``higher'' order linearly dependent columns.
+(Strictly speaking, we constructed the basis by adding columns only if the additional column did not belong to the existing column space.)
+
+The last issue is about numerical constraints.
+We found that, due to the large powers being taken, the determinant of the square matrix generated by the basis matrix was very large.
+We believe this made matrix inversion numerically imprecise.
+However, this issue is only severe when the number of terms becomes large (approximately 25).
+
+
 
 \section{A simple example}
+\label{sec:ex1}
 
 Suppose that an individual $i$ is endowed with $y_i$ nonlabor income and 1 unit of time, which she can divide between work $h_i$ and leisure $1-h_i$.
 Therefore she can spend up to $y_i + w_i h_i$ where $w_i$ is her wage rate.
 Assume for the moment that her budget set is linear; we introduce nonlinearities in a moment.
 
-Individual $i$'s preferences towards consumption $c_i$ and work $h_i$ can be represented by a Cobb-Douglas utility function; consequently the optimization problem she faces is 
+Suppose that $i$'s preferences towards consumption $c_i$ and work $h_i$ can be represented by an isoelastic utility function; consequently the optimization problem she faces is 
+\begin{align*}
+	\max_{c_i, h_i} \enskip \frac{c_i^{1-\alpha} + (1-h_i)^{1-\alpha}}{1-\alpha} \qquad \text{s.t.} \enskip c_i \leq y_i v_i + w_i h_i
+\end{align*}
+where $v_i$ is a variable not observed by the econometrician.
+That is, we regard $v_i$ as the measurement error in nonlabor income.
+We assume that $v_i$ is drawn from a uniform distribution on the unit interval.
+The resulting labor supply function is
+\begin{align*}
+	h_i^* &\equiv \pi (y_i, w_i, v_i) = \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.
+\end{align*}
+To ensure that Condition (iii) for identification, zero probability of choosing zero hours, holds, we simulate $w$ and $y$ such that $\frac{w_i^{1-\alpha}}{y_i} > v_i$.
+Since we assume that $v_i \sim U[0, 1]$, this essentially means that we restrict $w_i^{1-\alpha} > y_i$.
+
+\begin{figure}[H]
+	\centering
+	\caption{Estimation results}
+	\label{fig:est1}
+	\includegraphics[scale=0.6]{fig2.pdf}
+\end{figure}
+
+
+\section{Another example}
+\label{sec:ex2}
+
 \begin{align*}
 	\max_{c_i, h_i} \enskip c_i^{1-v_i} (1-h_i)^{v_i} \qquad \text{s.t.} \enskip c_i \leq y_i + w_i h_i
 \end{align*}
 where $v_i$ is an unknown scalar specific to $i$.
+We assume that $v_i$ is drawn from a uniform distribution on the unit interval.
 The resulting labor supply function is
 \begin{align*}
 	h^*_i &\equiv \pi (y_i, w_i, v_i) = 1 - \frac{(1-v_i) y_i}{w_i}.\footnotemark
@@ -64,22 +199,23 @@ We calculate
 \end{align*}
 
 
-\section{Estimation}
+\section{Policy analysis: changing the tax rate}
+\label{sec:policy}
 
-\begin{align*}
-	\hat{h}(x) &= p^K (x)' \hat{\beta} \\
-	p^K (x)' &= \begin{pmatrix}
-		\left[ y_J^{p(k)} w_J^{q(k)} \right] ' \\
-		\left[ \sum_{j=1}^{J-1} \left( \ell_j^{m(k)} y_j^{p(k)} w_j^{q(k)} - \ell_j^{m(k)} y_{j+1}^{p(k)} w_{j+1}^{q(k)} \right) \right]'
-	\end{pmatrix}
-\end{align*}
+\section{Conclusion}
+\label{sec:conclusion}
+
+
+
 
 \bibliographystyle{apalike}
 \bibliography{project}
 
 \appendix
 
-\section{Cobb-Douglas utility}
+\section{Derivation of labor supply functions}
+
+\subsection{Cobb-Douglas utility}
 \label{app:CD}
 
 The maximization problem can be equivalently written as
@@ -96,6 +232,37 @@ The maximization problem can be equivalently written as
 We get $\bar{\pi}_i (y_i, w_i)$ by integrating $v_i$ out:
 \begin{align*}
 	\bar{\pi}_i (y_i, w_i) &= \int_0^1 1 - v_i - \frac{v_i y_i}{w_i} \, d v_i = \left[ v_i - \frac{v_i^2}{2} - \frac{v_i^2 y_i}{2 w_i} \right]_{v_i=0}^1 = \frac{1}{2} - \frac{y_i}{2 w_i}.
+	\intertext{Furthermore, we calculate the inverse of $\pi$ w.r.t $v_i$ as follows:}
+	\ell_i &= 1 - v_i - \frac{v_i y_i}{w_i} \\
+	w_i \ell_i &= w_i - v_i w_i - v_i y_i = w_i - v_i (w_i + y_i) \\
+	v_i (w_i + y_i) &= w_i - w_i \ell_i = w_i (1-\ell_i) \\
+	v_i &= \frac{w_i (1-\ell_i)}{w_i + y_i} \equiv \pi^{-1} (y_i, w_i, \ell_i)
+	\intertext{Finally, we derive $\mu (y_i, w_i, \ell_i)$ as}
+	\mu (y_i, w_i, \ell_i) &= \int_0^{\frac{w_i (1-\ell_i)}{w_i + y_i}} 1 - v_i - \frac{v_i y_i}{w_i} - \ell_i \, d v_i \\
+	&= \left[ v_i - \frac{v_i^2}{2} - \frac{v_i^2 y_i}{2 w_i} - \ell_i v_i \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
+	&= \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \left( 1 + \frac{y_i}{w_i} \right) \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
+	&= \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \frac{w_i + y_i}{w_i} \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
+	&= \frac{w_i (1-\ell_i)^2}{w_i + y_i} - \frac{w_i^2 (1-\ell_i)^2}{2 (w_i + y_i)^2} \frac{w_i + y_i}{w_i} \\
+	&= \frac{w_i (1-\ell_i)^2}{2 (w_i + y_i)}
+\end{align*}
+
+
+\subsection{Isoelastic utility}
+\label{app:iso}
+
+The maximization problem can be equivalently written as
+\begin{align*}
+	&\max_{h_i} \enskip \frac{(y_i v_i + w_i h_i)^{1-\alpha} + (1-h_i)^{1-\alpha}}{1-\alpha}.
+	\intertext{The first-order condition is}
+	0 &= (y_i v_i + w_i h_i^*)^{1-\alpha} \cdot w_i + (1-h_i^*)^{1-\alpha} \cdot (-1).
+	\intertext{Rearranging yields}
+	h_i^* &= \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.
+	\intertext{Hence the labor supply function, ruling out corner solutions, is}
+	\pi (y_i, w_i, v_i) &= \max \left\lbrace 0, \enskip \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} \right\rbrace.
+\end{align*}
+We get $\bar{\pi}_i (y_i, w_i)$ by integrating $v_i$ out:
+\begin{align*}
+	\bar{\pi}_i (y_i, w_i) &= \int_0^1 \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} \, d v_i = \left[ \frac{w_i^{1/\alpha} v_i}{w_i^{1/\alpha} + w_i} - \frac{y_i v_i^2}{2 \left( w_i^{1/\alpha} + w_i \right) } \right]_{v_i=0}^1 = \frac{1}{2} - \frac{y_i}{2 w_i}.
 	\intertext{Furthermore, we calculate the inverse of $\pi$ w.r.t $v_i$ as follows:}
 	\ell_i &= 1 - v_i - \frac{v_i y_i}{w_i} \\
 	w_i \ell_i &= w_i - v_i w_i - v_i y_i = w_i - v_i (w_i + y_i) \\

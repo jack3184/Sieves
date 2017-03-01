@@ -60,23 +60,31 @@ v.v <- 1
 v   <- runif(n, v.m, v.v)
 
 # Functions from Blomquist and Newey (2002)
-pi.fn     <- function(y,w,v){ 1 - v - v*y/w }         # Labor supply
-pi.bar.fn <- function(y,w)  { 1/2 - y/(2*w) }         # Integrating v out
-pi.inv.fn <- function(y,w,l){ w*(1-l)/(w+y) }         # Inverse of pi wrt v
-mu.fn     <- function(y,w,l){ w*(1-l)^2/(2*(w+y)) }
+pi.fn     <- function(y,w,v){ 1 - v - v*y/w }                  # Labor supply
+pi.bar.fn <- function(y,w)  { 1/2 - y/(2*w) - w/(2*(w+y)) }    # Integrating v out
+pi.inv.fn <- function(y,w,l){ w*(1-l)/(w+y) }                  # Inverse of pi wrt v
+mu.fn     <- function(y,w,l){ w/(w+y)*(1-l-(1-l)^2/2 - 1/2) }
 
 # Actual hours
-h.1 <- pmin(pmax(0, pi.fn(y[,1], w[,1], v)), 1)
-h.2 <- pmin(pmax(0, pi.fn(y[,2], w[,2], v)), 1)
-c.1 <- y[,1] + w[,1]*h.1
-c.2 <- y[,2] + w[,2]*h.2
-U.1 <- c.1^(1-v)*(1-h.1)^v
-U.2 <- c.2^(1-v)*(1-h.2)^v
-i.U <- U.2>=U.1
+h.1  <- pmin(pmax(0, pi.fn(y[,1], w[,1], v)), 1)
+h.2  <- pmin(pmax(0, pi.fn(y[,2], w[,2], v)), 1)
+# Bunching at the kink
+i.l1      <- h.1 >= l
+i.l2      <- h.2 <= l
+h.1[i.l1] <- l
+h.2[i.l2] <- l
+
+c.1  <- y[,1] + w[,1]*h.1
+c.2  <- y[,2] + w[,2]*h.2
+U.1  <- c.1^(1-v)*(1-h.1)^v
+U.2  <- c.2^(1-v)*(1-h.2)^v
+i.U  <- U.2>=U.1
 
 h       <- matrix(NA, nrow=n, ncol=1)
 h[i.U]  <- h.2[i.U]
 h[!i.U] <- h.1[!i.U]
+eps     <- rnorm(n, 0, 0.5)
+h       <- pmax(pmin(h+eps, 1), 0)
 
 # Conditional expectation of hours
 pi.bar <- pi.bar.fn(y[,2], w[,2])
@@ -147,7 +155,7 @@ SSE <- function(K){
 CV <- function(K){1 - SSE(K) / sum((h-h.bar)^2)}
 
 
-#### Implementation ####
+#### Running estimation ####
 
 SieveReg <- function (K.max, plotfilename) {
   # This function implements the sieve regression routine outlined above. K.max is the
@@ -173,7 +181,7 @@ results1 <- SieveReg(20, 'fig1')
 #### Labor supply -- isoelastic utility ####
 # v now represents measurement error
 
-a  <- 4/3    # Utility fn param
+a  <- 4/3    # Utility fn param; alpha in the write-up is 1/a = 3/4
 
 # Functions from Blomquist and Newey (2002)
 pi        <- function(y,w,v) { pmax(0, ((w)^a - (y*v)) / (w^a+w)) }    # Labor supply
@@ -209,8 +217,9 @@ l.a <- l
 
 # Minimum wage
 w.a[w.a<=(mean(w.a)*.4)] <- mean(w.a)*.4
-l.a                      <- pmin(1, (kink)/w.a[,1])
+l.a                      <- pmin(1, (b.k)/w.a[,1])
 
+K.opt <- as.integer(results2[3])
 K.pol <- K.opt+5
 
 P.a <- P.fn.base(y.a,w.a,l.a)
@@ -244,11 +253,11 @@ plot(M.SE)
 
 Additional.term <- colnames(P)[3:K.pol]
 
-write.table(cbind(name,round(cbind(M.hat,M.SE),4)), 'table1.txt')
+write.table(cbind(Additional.term,round(cbind(M.hat,M.SE),4)), 'table1.txt')
 
 
 
 
-### END OF CODE ####
+#### END OF CODE ####
 
 
