@@ -114,7 +114,28 @@ Following \citet{Blomquist2002}, we focus on power series approximations of the 
 \end{align*}
 Not surprisingly, the first row approximates $\bar{\pi} (y_J, w_J)$ whereas the second row is an approximation for $\sum_{j=1}^{J-1} [\mu(y_j, w_j, \ell_j) - \mu(y_{j+1}, w_{j+1}, \ell_j)]$.
 
-This estimation procedure is fairly easy to implement.
+\subsection{Generating data}
+Since the paper is based on real data, which we do not have,
+it is necessary to create our own data. We suppose that an individual $i$ is endowed with $y_i$ nonlabor income and 1 unit of time, which she can divide between work $h_i$ and leisure $1-h_i$.
+Therefore she can spend up to $y_i + w_i h_i$ where $w_i$ is her wage rate.
+Assume for the moment that her budget set is linear; we introduce nonlinearities in a moment.
+
+Suppose that $i$'s preferences towards consumption $c_i$ and work $h_i$ can be represented by an isoelastic utility function; consequently the optimization problem she faces is 
+\begin{align*}
+	\max_{c_i, h_i} \enskip \frac{c_i^{1-\alpha} + (1-h_i)^{1-\alpha}}{1-\alpha} \qquad \text{s.t.} \enskip c_i \leq y_i v_i + w_i h_i
+\end{align*}
+where $v_i$ is a variable not observed by the econometrician.
+That is, we regard $v_i$ as the measurement error in nonlabor income.
+We assume that $v_i$ is drawn from a uniform distribution on the unit interval.
+The resulting labor supply function is
+\begin{align*}
+	h_i^* &\equiv \pi (y_i, w_i, v_i) = \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.
+\end{align*}
+\footnotetext{Calculations can be found in Appendix \ref{app:iso}.}
+To ensure that Condition (iii) for identification, zero probability of choosing zero hours, holds, we simulate $w$ and $y$ such that $\frac{w_i^{1/\alpha}}{y_i} > v_i$.
+Since we assume that $v_i \sim U[0, 1]$, this essentially means that we restrict $w_i^{1/\alpha} > y_i$.\footnote{For the sake of generality, our accompanying code does consider the possibility of having a corner solution. However, we generate data such that this never occurs.}
+
+Once the data is generated, the estimation procedure is easy to implement.
 Two complications arise, though: (1) how to optimally choose the number of approximating terms $K$, and (2) in what order to include basis functions.
 
 \subsection{Choosing $K$}
@@ -151,28 +172,14 @@ However, this issue is only severe when the number of terms becomes large (appro
 
 
 
-\section{A simple example}
+\subsection{Results}
 \label{sec:ex1}
 
-Suppose that an individual $i$ is endowed with $y_i$ nonlabor income and 1 unit of time, which she can divide between work $h_i$ and leisure $1-h_i$.
-Therefore she can spend up to $y_i + w_i h_i$ where $w_i$ is her wage rate.
-Assume for the moment that her budget set is linear; we introduce nonlinearities in a moment.
-
-Suppose that $i$'s preferences towards consumption $c_i$ and work $h_i$ can be represented by an isoelastic utility function; consequently the optimization problem she faces is 
-\begin{align*}
-	\max_{c_i, h_i} \enskip \frac{c_i^{1-\alpha} + (1-h_i)^{1-\alpha}}{1-\alpha} \qquad \text{s.t.} \enskip c_i \leq y_i v_i + w_i h_i
-\end{align*}
-where $v_i$ is a variable not observed by the econometrician.
-That is, we regard $v_i$ as the measurement error in nonlabor income.
-We assume that $v_i$ is drawn from a uniform distribution on the unit interval.
-The resulting labor supply function is
-\begin{align*}
-	h_i^* &\equiv \pi (y_i, w_i, v_i) = \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.\footnotemark
-\end{align*}\
-\footnotetext{Calculations can be found in Appendix \ref{app:iso}.}
-To ensure that Condition (iii) for identification, zero probability of choosing zero hours, holds, we simulate $w$ and $y$ such that $\frac{w_i^{1/\alpha}}{y_i} > v_i$.
-Since we assume that $v_i \sim U[0, 1]$, this essentially means that we restrict $w_i^{1/\alpha} > y_i$.\footnote{For the sake of generality, our accompanying code does consider the possibility of having a corner solution. However, we generate data such that this never occurs.}
-
+With optimal K, our model matches the data well: (The red line is the known expected labour supply function. The green
+line is observed hours worked, and the blue line is our fitted model.)
+ The estimation performs less well
+around the non-smooth parts of the hours distribution---in our DGP,
+these are due to bunching about the kink in the budget constraint
 \begin{figure}[H]
 	\centering
 	\caption{Estimation results}
@@ -181,6 +188,9 @@ Since we assume that $v_i \sim U[0, 1]$, this essentially means that we restrict
 \end{figure}
 
 
+
+\textbf{Jackson: I would shift the following section to an appendix, and you could signpost
+  it in the `Generating Data' section}
 \section{Another example}
 \label{sec:ex2}
 
@@ -200,7 +210,8 @@ We calculate
 \end{align*}
 
 
-\section{Policy analysis: changing the tax rate}
+
+\section{Policy simulation}
 \label{sec:policy}
 
 Following Sections 3.4 and 5 in \citet{Blomquist2002}, we estimate the percent change in average labor supply from shifting budget sets.
@@ -211,7 +222,7 @@ We assume a minimum wage equal to $\tfrac{4}{10}$ of the mean wage is introduced
 where, as in \citet{Blomquist2002}, subscripts $a$ and $b$ refer to after and before the policy change.
 We replicate Table I from Section 5.3:
 
-%\input {table1} \mbox{} \\
+\input {table1} \mbox{} \\
 
 As the first row of \citepos{Blomquist2002} table, the regression in our first row has regressors $(1,y_j,w_j)$.
 Working down the rows, additional terms are added to the basis.
@@ -219,13 +230,19 @@ Entries with two digits indicate terms $y_j^{\text{digit }1}w_j^{\text{digit }2}
 y_{j+1}^{\text{digit }1}w_{j+1}^{\text{digit }2})l_j^{\text{digit }3}$ as in Equations (3.2)-(3.4) of the original paper.
 
 The estimator $M$ can be computed in a simpler way, but we have used the formulas provided by the paper.
-Standard errors are computed similarly.
+Standard errors are computed similarly. 
+Notice, Monte Carlo simulations are unnecessary for this replication,
+since there the standard errors are known in closed form.
 Compared to B\&N, our results are less robust to the choice of basis function but, plainly, there are so many differences between our analyses that comparisons are not clarifying.
 
 We decided not do include the elasticity functional $E$, since it would be very tedious to take derivatives of the basis function.
 
 \section{Conclusion}
 \label{sec:conclusion}
+\begin{itemize}
+\item Estimation approximates simulated data well
+\item However, policy sims sensitive to choice of basis
+\end{itemize}
 
 
 
