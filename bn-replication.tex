@@ -184,7 +184,7 @@ these are due to bunching about the kink in the budget constraint
 	\centering
 	\caption{Estimation results}
 	\label{fig:est1}
-	\includegraphics[scale=0.6]{fig2.pdf}
+	\includegraphics[scale=0.6]{fig_iso.pdf}
 \end{figure}
 
 
@@ -198,16 +198,16 @@ these are due to bunching about the kink in the budget constraint
 	\max_{c_i, h_i} \enskip c_i^{1-v_i} (1-h_i)^{v_i} \qquad \text{s.t.} \enskip c_i \leq y_i + w_i h_i
 \end{align*}
 where $v_i$ is an unknown scalar specific to $i$.
-We assume that $v_i$ is drawn from a uniform distribution on the unit interval.
+We assume that $v_i$ is drawn from a uniform distribution on $[0, \tfrac{1}{2}]$.
+We need a tighter-than-unit interval to satisfy Condition (iii), nonzero hours choice.
 The resulting labor supply function is
 \begin{align*}
 	h^*_i &\equiv \pi (y_i, w_i, v_i) = 1 - \frac{(1-v_i) y_i}{w_i}.\footnotemark
 \end{align*}
 \footnotetext{Calculations can be found in Appendix \ref{app:CD}.}
-We calculate
-\begin{align*}
-	\bar{\pi} (y_i, w_i) &= 1 - \frac{y_i}{2 w_i} \qquad \text{and} \\
-\end{align*}
+
+As reflected in the example, this doesn't really work.
+Linearity!!
 
 
 
@@ -269,18 +269,20 @@ The maximization problem can be equivalently written as
 We get $\bar{\pi}_i (y_i, w_i)$ by integrating $v_i$ out:
 \begin{align*}
 	\bar{\pi}_i (y_i, w_i) &= \int_0^1 \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} \, d v_i = \left[ \frac{w_i^{1/\alpha} v_i}{w_i^{1/\alpha} + w_i} - \frac{y_i v_i^2}{2 \left( w_i^{1/\alpha} + w_i \right) } \right]_{v_i=0}^1 = \frac{1}{w_i^{1/\alpha} + w_i} \left( w_i^{1/\alpha} - \frac{y_i}{2} \right).
-	\intertext{Furthermore, we calculate the inverse of $\pi$ w.r.t $v_i$ as follows:}
-	\ell_i &= 1 - v_i - \frac{v_i y_i}{w_i} \\
-	w_i \ell_i &= w_i - v_i w_i - v_i y_i = w_i - v_i (w_i + y_i) \\
-	v_i (w_i + y_i) &= w_i - w_i \ell_i = w_i (1-\ell_i) \\
-	v_i &= \frac{w_i (1-\ell_i)}{w_i + y_i} \equiv \pi^{-1} (y_i, w_i, \ell_i)
-	\intertext{Finally, we derive $\mu (y_i, w_i, \ell_i)$ as}
-	\mu (y_i, w_i, \ell_i) &= \int_0^{\frac{w_i (1-\ell_i)}{w_i + y_i}} 1 - v_i - \frac{v_i y_i}{w_i} - \ell_i \, d v_i \\
-	&= \left[ v_i - \frac{v_i^2}{2} - \frac{v_i^2 y_i}{2 w_i} - \ell_i v_i \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
-	&= \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \left( 1 + \frac{y_i}{w_i} \right) \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
-	&= \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \frac{w_i + y_i}{w_i} \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
-	&= \frac{w_i (1-\ell_i)^2}{w_i + y_i} - \frac{w_i^2 (1-\ell_i)^2}{2 (w_i + y_i)^2} \frac{w_i + y_i}{w_i} \\
-	&= \frac{w_i (1-\ell_i)^2}{2 (w_i + y_i)}
+\end{align*}
+Furthermore, we calculate the inverse of $\pi$ w.r.t $v_i$ as follows:
+\begin{align*}
+	\ell_i &= \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} \\
+	(w_i^{1/\alpha} + w_i) \ell_i &= w_i^{1/\alpha} - y_i v_i \\
+	y_i v_i &= w_i - w_i \ell_i = w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i \\
+	v_i &= \frac{w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i}{y_i} \equiv \pi^{-1} (y_i, w_i, \ell_i)
+\end{align*}
+Finally, we derive $\mu (y_i, w_i, \ell_i)$ as
+\begin{align*}
+	\mu (y_i, w_i, \ell_i) &= \int_0^{\frac{w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i}{y_i}} \left[ \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} - \ell_i \right] \, dv_i \\
+	&= \left[ \frac{1}{w_i^{1/\alpha} + w_i} \left( w_i^{1/\alpha} v_i - \frac{y_i v_i^2}{2} \right) - \ell_i v_i \right]_{v_i=0}^{\frac{w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i}{y_i}} \\
+	&= \left( \frac{w_i^{1/\alpha}}{w_i^{1/\alpha} + w_i} - \ell_i \right) \frac{w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i}{y_i} - \frac{\left[ w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i \right]^2}{2 y_i} \\
+	&= \frac{\left[ w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i \right]^2}{(w_i^{1/\alpha} + w_i) y_i} - \frac{\left[ w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i \right]^2}{2 y_i}
 \end{align*}
 
 \subsection{Cobb-Douglas utility}
@@ -299,19 +301,21 @@ The maximization problem can be equivalently written as
 \end{align*}
 We get $\bar{\pi}_i (y_i, w_i)$ by integrating $v_i$ out:
 \begin{align*}
-	\bar{\pi}_i (y_i, w_i) &= \int_0^1 1 - v_i - \frac{v_i y_i}{w_i} \, d v_i = \left[ v_i - \frac{v_i^2}{2} - \frac{v_i^2 y_i}{2 w_i} \right]_{v_i=0}^1 = \frac{1}{2} - \frac{y_i}{2 w_i}.
+	\bar{\pi}_i (y_i, w_i) &= \int_0^{\frac{1}{2}} \left[ 1 - v_i - \frac{v_i y_i}{w_i} \right] \cdot 2 \, d v_i = 2 \left[ v_i - \frac{v_i^2}{2} - \frac{v_i^2 y_i}{2 w_i} \right]_{v_i=0}^{\frac{1}{2}} = \frac{3}{4} - \frac{y_i}{4 w_i}.
 	\intertext{Furthermore, we calculate the inverse of $\pi$ w.r.t $v_i$ as follows:}
 	\ell_i &= 1 - v_i - \frac{v_i y_i}{w_i} \\
 	w_i \ell_i &= w_i - v_i w_i - v_i y_i = w_i - v_i (w_i + y_i) \\
 	v_i (w_i + y_i) &= w_i - w_i \ell_i = w_i (1-\ell_i) \\
 	v_i &= \frac{w_i (1-\ell_i)}{w_i + y_i} \equiv \pi^{-1} (y_i, w_i, \ell_i)
-	\intertext{Finally, we derive $\mu (y_i, w_i, \ell_i)$ as}
-	\mu (y_i, w_i, \ell_i) &= \int_0^{\frac{w_i (1-\ell_i)}{w_i + y_i}} 1 - v_i - \frac{v_i y_i}{w_i} - \ell_i \, d v_i \\
-	&= \left[ v_i - \frac{v_i^2}{2} - \frac{v_i^2 y_i}{2 w_i} - \ell_i v_i \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
-	&= \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \left( 1 + \frac{y_i}{w_i} \right) \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
-	&= \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \frac{w_i + y_i}{w_i} \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
-	&= \frac{w_i (1-\ell_i)^2}{w_i + y_i} - \frac{w_i^2 (1-\ell_i)^2}{2 (w_i + y_i)^2} \frac{w_i + y_i}{w_i} \\
-	&= \frac{w_i (1-\ell_i)^2}{2 (w_i + y_i)}
+\end{align*}
+Finally, we derive $\mu (y_i, w_i, \ell_i)$ as
+\begin{align*}
+	\mu (y_i, w_i, \ell_i) &= \int_0^{\min \left\lbrace \frac{1}{2}, \frac{w_i (1-\ell_i)}{w_i + y_i} \right\rbrace} \left[ 1 - v_i - \frac{v_i y_i}{w_i} - \ell_i \right] \cdot 2 \, d v_i \\
+	&= 2 \cdot \left[ v_i - \frac{v_i^2}{2} - \frac{v_i^2 y_i}{2 w_i} - \ell_i v_i \right]_{v_i = 0}^{\min \left\lbrace \frac{1}{2}, \frac{w_i (1-\ell_i)}{w_i + y_i} \right\rbrace} \\
+	&= 2 \cdot \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \left( 1 + \frac{y_i}{w_i} \right) \right]_{v_i = 0}^{\min \left\lbrace \frac{1}{2}, \frac{w_i (1-\ell_i)}{w_i + y_i} \right\rbrace} \\
+	&= 2 \cdot \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \frac{w_i + y_i}{w_i} \right]_{v_i = 0}^{\min \left\lbrace \frac{1}{2}, \frac{w_i (1-\ell_i)}{w_i + y_i} \right\rbrace} \\
+	&= 2 \cdot \min \left\lbrace \frac{1-\ell_i}{2} - \frac{w_i + y_i}{8 w_i} , \enskip \frac{w_i (1-\ell_i)^2}{w_i + y_i} - \frac{w_i^2 (1-\ell_i)^2}{2 (w_i + y_i)^2} \frac{w_i + y_i}{w_i} \right\rbrace \\
+	&= \min \left\lbrace \frac{3}{4} - \frac{y_i}{4 w_i} - \frac{\ell_i}{2} , \enskip \frac{w_i (1-\ell_i)^2}{w_i + y_i} \right\rbrace
 \end{align*}
 
 

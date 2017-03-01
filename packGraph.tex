@@ -1,0 +1,27 @@
+% Graphics packages
+\usepackage{tikz}                                          % TikZ drawings
+\usepackage{pgfplots}                                      % PGFPlots plots
+    \pgfplotsset{                                          % PGFPlots options
+        cartesian/.style={                                 % Declaring Cartesian plane style
+            % Axis alignment
+            axis x line=middle,
+            axis y line=middle,
+            % Axis labels alignment
+            every axis x label/.style={at={(current axis.right of origin)},anchor=north west},
+            every axis y label/.style={at={(current axis.above origin)},anchor=north east},
+            % Legend alignment
+            every axis legend/.append style={legend pos=outer north east}
+        },
+        % Version declaration for compatibility
+        compat=1.11
+    }
+\usetikzlibrary{calc}
+    % Node setup for extensive form games
+    \tikzset{
+        % Two node styles for game trees: solid and hollow
+        solid node/.style={circle,draw,inner sep=1.5,fill=black},
+        hollow node/.style={circle,draw,inner sep=1.5},
+        % Solution nodes
+        solidsol node/.style={blue,circle,draw,inner sep=1.5,fill=blue},
+        hollowsol node/.style={blue,circle,draw,inner sep=1.5}
+    }

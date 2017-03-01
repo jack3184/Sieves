@@ -54,16 +54,16 @@ y[i.k,2] <- b.k - w[i.k,2]*l[i.k]
 
 #### Labor supply -- Cobb-Douglas preferences ####
 
-# v: Cobb-Douglas parameter, drawn from uniform
-v.m <- 0
-v.v <- 1
-v   <- runif(n, v.m, v.v)
+# v: Cobb-Douglas parameter, drawn from U[0, 1/2]
+v.min <- 0
+v.max <- .5
+v     <- runif(n, v.min, v.max)
 
 # Functions from Blomquist and Newey (2002)
-pi.fn     <- function(y,w,v){ 1 - v - v*y/w }                  # Labor supply
-pi.bar.fn <- function(y,w)  { 1/2 - y/(2*w) - w/(2*(w+y)) }    # Integrating v out
-pi.inv.fn <- function(y,w,l){ w*(1-l)/(w+y) }                  # Inverse of pi wrt v
-mu.fn     <- function(y,w,l){ w/(w+y)*(1-l-(1-l)^2/2 - 1/2) }
+pi.fn     <- function(y,w,v){ 1 - v - v*y/w }    # Labor supply
+pi.bar.fn <- function(y,w)  { 3/4 - y/(4*w) }    # Integrating v out
+pi.inv.fn <- function(y,w,l){ w*(1-l)/(w+y) }    # Inverse of pi wrt v
+mu.fn     <- function(y,w,l){ pmin(w/(w+y)*(1-l)^2, 3/4 - y/(4*w) - l/2) }
 
 # Actual hours
 h.1  <- pmin(pmax(0, pi.fn(y[,1], w[,1], v)), 1)
@@ -175,11 +175,14 @@ SieveReg <- function (K.max, plotfilename) {
   
   return(list(CV.mat, CV.opt, K.opt, t.end))
 }
-results1 <- SieveReg(20, 'fig1')
+results1 <- SieveReg(20, 'fig_CD')
 
 
 #### Labor supply -- isoelastic utility ####
 # v now represents measurement error
+v.m <- 0
+v.v <- 1
+v   <- runif(n, v.m, v.v)
 
 a  <- 4/3    # Utility fn param; alpha in the write-up is 1/a = 3/4
 
@@ -206,7 +209,7 @@ P <- P.fn(y,w,l)
 ncol(P)
 
 # Estimation
-results2 <- SieveReg(20, 'fig2')
+results2 <- SieveReg(20, 'fig_iso')
 
 #### Policy simulation ####
 # .a is for `after', .b is for `before'
