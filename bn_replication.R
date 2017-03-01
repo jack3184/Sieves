@@ -187,7 +187,8 @@ a  <- 4/3    # Utility fn param; alpha in the write-up is 1/a = 3/4
 pi        <- function(y,w,v) { pmax(0, ((w)^a - (y*v)) / (w^a+w)) }    # Labor supply
 pi.bar.fn <- function(y,w)   { 1/(w^a+w)*((w^a-y/2)^(w^a/y >= 1))*
                               ((w^(a*2)/(y*2))^(w^a/y < 1)) }          # Integrating v out
-pi.inv.fn <- function(y,w,l) { (w^2 - l*(w^2+w)/y) * (l>0)}            # Inverse of pi wrt v
+#pi.inv.fn <- function(y,w,l) { (w^2 - l*(w^2+w)/y) * (l>0)}            # Inverse of pi wrt v
+pi.inv.fn <- function(y,w,l) { ((w^a - l*(w^a+w))/y) * (l>0)}            # Inverse of pi wrt v
 # Notice: inverse not well defined on some part of domain, mu.fn accounts for this
 mu.fn     <- function(y,w,l) { 
   0 * (0 >= (w^a-l*(w^a+w))/y ) +

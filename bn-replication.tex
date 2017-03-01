@@ -167,10 +167,11 @@ That is, we regard $v_i$ as the measurement error in nonlabor income.
 We assume that $v_i$ is drawn from a uniform distribution on the unit interval.
 The resulting labor supply function is
 \begin{align*}
-	h_i^* &\equiv \pi (y_i, w_i, v_i) = \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.
-\end{align*}
-To ensure that Condition (iii) for identification, zero probability of choosing zero hours, holds, we simulate $w$ and $y$ such that $\frac{w_i^{1-\alpha}}{y_i} > v_i$.
-Since we assume that $v_i \sim U[0, 1]$, this essentially means that we restrict $w_i^{1-\alpha} > y_i$.
+	h_i^* &\equiv \pi (y_i, w_i, v_i) = \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.\footnotemark
+\end{align*}\
+\footnotetext{Calculations can be found in Appendix \ref{app:iso}.}
+To ensure that Condition (iii) for identification, zero probability of choosing zero hours, holds, we simulate $w$ and $y$ such that $\frac{w_i^{1/\alpha}}{y_i} > v_i$.
+Since we assume that $v_i \sim U[0, 1]$, this essentially means that we restrict $w_i^{1/\alpha} > y_i$.\footnote{For the sake of generality, our accompanying code does consider the possibility of having a corner solution. However, we generate data such that this never occurs.}
 
 \begin{figure}[H]
 	\centering
@@ -202,6 +203,27 @@ We calculate
 \section{Policy analysis: changing the tax rate}
 \label{sec:policy}
 
+Following Sections 3.4 and 5 in \citet{Blomquist2002}, we estimate the percent change in average labor supply from shifting budget sets.
+We assume a minimum wage equal to $\tfrac{4}{10}$ of the mean wage is introduced:
+\begin{align*}
+  w_a = \max\left\{\tfrac{4}{10} \mathrm{E}[w_b], w_b\right\}
+\end{align*}
+where, as in \citet{Blomquist2002}, subscripts $a$ and $b$ refer to after and before the policy change.
+We replicate Table I from Section 5.3:
+
+%\input {table1} \mbox{} \\
+
+As the first row of \citepos{Blomquist2002} table, the regression in our first row has regressors $(1,y_j,w_j)$.
+Working down the rows, additional terms are added to the basis.
+Entries with two digits indicate terms $y_j^{\text{digit }1}w_j^{\text{digit }2}$ in the power series, and three digits indicate $(y_{j}^{\text{digit }1}w_j^{\text{digit }2} -
+y_{j+1}^{\text{digit }1}w_{j+1}^{\text{digit }2})l_j^{\text{digit }3}$ as in Equations (3.2)-(3.4) of the original paper.
+
+The estimator $M$ can be computed in a simpler way, but we have used the formulas provided by the paper.
+Standard errors are computed similarly.
+Compared to B\&N, our results are less robust to the choice of basis function but, plainly, there are so many differences between our analyses that comparisons are not clarifying.
+
+We decided not do include the elasticity functional $E$, since it would be very tedious to take derivatives of the basis function.
+
 \section{Conclusion}
 \label{sec:conclusion}
 
@@ -214,6 +236,35 @@ We calculate
 \appendix
 
 \section{Derivation of labor supply functions}
+
+\subsection{Isoelastic utility}
+\label{app:iso}
+
+The maximization problem can be equivalently written as
+\begin{align*}
+	&\max_{h_i} \enskip \frac{(y_i v_i + w_i h_i)^{1-\alpha} + (1-h_i)^{1-\alpha}}{1-\alpha}.
+	\intertext{The first-order condition is}
+	0 &= (y_i v_i + w_i h_i^*)^{1-\alpha} \cdot w_i + (1-h_i^*)^{1-\alpha} \cdot (-1).
+	\intertext{Rearranging yields}
+	h_i^* &\equiv \pi (y_i, w_i, v_i) = \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.
+	\intertext{We rule out corner solutions, and thus fulfill the identifying assumption that $\Pr (h=0 |x) = 0$ by ensuring that the numerator is positive.}
+\end{align*}
+We get $\bar{\pi}_i (y_i, w_i)$ by integrating $v_i$ out:
+\begin{align*}
+	\bar{\pi}_i (y_i, w_i) &= \int_0^1 \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} \, d v_i = \left[ \frac{w_i^{1/\alpha} v_i}{w_i^{1/\alpha} + w_i} - \frac{y_i v_i^2}{2 \left( w_i^{1/\alpha} + w_i \right) } \right]_{v_i=0}^1 = \frac{1}{w_i^{1/\alpha} + w_i} \left( w_i^{1/\alpha} - \frac{y_i}{2} \right).
+	\intertext{Furthermore, we calculate the inverse of $\pi$ w.r.t $v_i$ as follows:}
+	\ell_i &= 1 - v_i - \frac{v_i y_i}{w_i} \\
+	w_i \ell_i &= w_i - v_i w_i - v_i y_i = w_i - v_i (w_i + y_i) \\
+	v_i (w_i + y_i) &= w_i - w_i \ell_i = w_i (1-\ell_i) \\
+	v_i &= \frac{w_i (1-\ell_i)}{w_i + y_i} \equiv \pi^{-1} (y_i, w_i, \ell_i)
+	\intertext{Finally, we derive $\mu (y_i, w_i, \ell_i)$ as}
+	\mu (y_i, w_i, \ell_i) &= \int_0^{\frac{w_i (1-\ell_i)}{w_i + y_i}} 1 - v_i - \frac{v_i y_i}{w_i} - \ell_i \, d v_i \\
+	&= \left[ v_i - \frac{v_i^2}{2} - \frac{v_i^2 y_i}{2 w_i} - \ell_i v_i \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
+	&= \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \left( 1 + \frac{y_i}{w_i} \right) \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
+	&= \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \frac{w_i + y_i}{w_i} \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
+	&= \frac{w_i (1-\ell_i)^2}{w_i + y_i} - \frac{w_i^2 (1-\ell_i)^2}{2 (w_i + y_i)^2} \frac{w_i + y_i}{w_i} \\
+	&= \frac{w_i (1-\ell_i)^2}{2 (w_i + y_i)}
+\end{align*}
 
 \subsection{Cobb-Douglas utility}
 \label{app:CD}
@@ -246,36 +297,6 @@ We get $\bar{\pi}_i (y_i, w_i)$ by integrating $v_i$ out:
 	&= \frac{w_i (1-\ell_i)^2}{2 (w_i + y_i)}
 \end{align*}
 
-
-\subsection{Isoelastic utility}
-\label{app:iso}
-
-The maximization problem can be equivalently written as
-\begin{align*}
-	&\max_{h_i} \enskip \frac{(y_i v_i + w_i h_i)^{1-\alpha} + (1-h_i)^{1-\alpha}}{1-\alpha}.
-	\intertext{The first-order condition is}
-	0 &= (y_i v_i + w_i h_i^*)^{1-\alpha} \cdot w_i + (1-h_i^*)^{1-\alpha} \cdot (-1).
-	\intertext{Rearranging yields}
-	h_i^* &= \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.
-	\intertext{Hence the labor supply function, ruling out corner solutions, is}
-	\pi (y_i, w_i, v_i) &= \max \left\lbrace 0, \enskip \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} \right\rbrace.
-\end{align*}
-We get $\bar{\pi}_i (y_i, w_i)$ by integrating $v_i$ out:
-\begin{align*}
-	\bar{\pi}_i (y_i, w_i) &= \int_0^1 \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} \, d v_i = \left[ \frac{w_i^{1/\alpha} v_i}{w_i^{1/\alpha} + w_i} - \frac{y_i v_i^2}{2 \left( w_i^{1/\alpha} + w_i \right) } \right]_{v_i=0}^1 = \frac{1}{2} - \frac{y_i}{2 w_i}.
-	\intertext{Furthermore, we calculate the inverse of $\pi$ w.r.t $v_i$ as follows:}
-	\ell_i &= 1 - v_i - \frac{v_i y_i}{w_i} \\
-	w_i \ell_i &= w_i - v_i w_i - v_i y_i = w_i - v_i (w_i + y_i) \\
-	v_i (w_i + y_i) &= w_i - w_i \ell_i = w_i (1-\ell_i) \\
-	v_i &= \frac{w_i (1-\ell_i)}{w_i + y_i} \equiv \pi^{-1} (y_i, w_i, \ell_i)
-	\intertext{Finally, we derive $\mu (y_i, w_i, \ell_i)$ as}
-	\mu (y_i, w_i, \ell_i) &= \int_0^{\frac{w_i (1-\ell_i)}{w_i + y_i}} 1 - v_i - \frac{v_i y_i}{w_i} - \ell_i \, d v_i \\
-	&= \left[ v_i - \frac{v_i^2}{2} - \frac{v_i^2 y_i}{2 w_i} - \ell_i v_i \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
-	&= \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \left( 1 + \frac{y_i}{w_i} \right) \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
-	&= \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \frac{w_i + y_i}{w_i} \right]_{v_i = 0}^{\frac{w_i (1-\ell_i)}{w_i + y_i}} \\
-	&= \frac{w_i (1-\ell_i)^2}{w_i + y_i} - \frac{w_i^2 (1-\ell_i)^2}{2 (w_i + y_i)^2} \frac{w_i + y_i}{w_i} \\
-	&= \frac{w_i (1-\ell_i)^2}{2 (w_i + y_i)}
-\end{align*}
 
 \end{document}
 
