@@ -152,7 +152,7 @@ SSE <- function(K){
   sum(temp)
 }
 
-CV <- function(K){1 - SSE(K) / sum((h-h.bar)^2)}
+CV <- function(K){1 - SSE(K) / sum((h-mean(h))^2)}
 
 
 #### Running estimation ####
@@ -202,6 +202,7 @@ h        <- pi(y[,1],w[,1],v)
 
 # Basis
 P <- P.fn(y,w,l)
+ncol(P)
 
 # Estimation
 results2 <- SieveReg(20, 'fig2')
@@ -252,10 +253,12 @@ plot(M.hat)
 plot(M.SE)
 
 Additional.term <- colnames(P)[3:K.pol]
+CV <- round(results2[[1]][3:K.pol],4)
+K <- 3:K.pol
 
-write.table(cbind(Additional.term,round(cbind(M.hat,M.SE),4)), 'table1.txt')
-
-
+library(xtable)
+table1 <- xtable(cbind(K,Additional.term,CV,round(cbind(M.hat,M.SE),4)),label=NULL)
+print.xtable(table1, type="latex", file="table1.tex", include.rownames=FALSE )
 
 
 #### END OF CODE ####
