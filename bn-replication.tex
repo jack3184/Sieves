@@ -252,7 +252,7 @@ Under our new assumption on the utility function, individual $i$ solves the foll
 \begin{align*}
 	\max_{c_i, h_i} \enskip c_i^{1-v_i} (1-h_i)^{v_i} \qquad \text{s.t.} \enskip c_i \leq y_i + w_i h_i.
 \end{align*}
-We assume that $v_i$ is drawn from a uniform distribution on $[0, \tfrac{1}{2}]$.
+We assume that $v_i$ is drawn from a uniform distribution on $\left[ 0, \tfrac{1}{2} \right]$.
 We need a tighter-than-unit interval to satisfy Condition (iii), nonzero hours choice.
 The resulting labor supply function is
 \begin{align*}
@@ -264,12 +264,15 @@ That is, $h^*_i$ is indeed linear in $v_i$.
 We present our results in Figure \ref{fig:est2}.
 As the figure shows, our estimation performs very poorly.
 The optimal choice of $K$ is 1, which is not surprising given the linearity of hours in $v_i$.
+Beyond linearity, however, an alternative explanation of this poor performance could be the relative dominance of the heterogeneity term.
+That is, the labor supply equation implies that $\frac{\cov (v, h)}{\var (h)} \gg \frac{\cov (\text{basis}, h)}{\var (\text{basis})}$.
+The fact that noise injection has virtually no effect on our results supports this explanation.
 
-\begin{figure}[H]
+\begin{figure}[ht]
 	\centering
 	\caption{Estimation results under Cobb-Douglas utilities}
 	\label{fig:est2}
-	\includegraphics[scale=0.55]{fig_CD.pdf}
+	\includegraphics[scale=0.6]{fig_CD.pdf}
 \end{figure}
 
 
