@@ -9,11 +9,12 @@
 # Authors: Jackson Bunting, Attila Gyetvai
 # jackson.bunting@duke.edu, attila.gyetvai@duke.edu
 #
-# Feb 28, 2017
+# March 1, 2017
 
 
 #### Initialization ####
 rm(list = ls())
+set.seed(030117)
 
 #### Simulating budget set data ####
 
@@ -65,7 +66,7 @@ pi.bar.fn <- function(y,w)  { 3/4 - y/(4*w) }    # Integrating v out
 pi.inv.fn <- function(y,w,l){ w*(1-l)/(w+y) }    # Inverse of pi wrt v
 mu.fn     <- function(y,w,l){ pmin(w/(w+y)*(1-l)^2, 3/4 - y/(4*w) - l/2) }
 
-# Actual hours
+# Simulated hours
 h.1  <- pmin(pmax(0, pi.fn(y[,1], w[,1], v)), 1)
 h.2  <- pmin(pmax(0, pi.fn(y[,2], w[,2], v)), 1)
 # Bunching at the kink
@@ -83,10 +84,11 @@ i.U  <- U.2>=U.1
 h       <- matrix(NA, nrow=n, ncol=1)
 h[i.U]  <- h.2[i.U]
 h[!i.U] <- h.1[!i.U]
-eps     <- rnorm(n, 0, 0.5)
-h       <- pmax(pmin(h+eps, 1), 0)
+# Noise injection
+#eps     <- rnorm(n, 0, 0.5)
+#h       <- pmax(pmin(h+eps, 1), 0)
 
-# Conditional expectation of hours
+# Expected hours
 pi.bar <- pi.bar.fn(y[,2], w[,2])
 mu.1   <- mu.fn(y[,1], w[,1], l)
 mu.2   <- mu.fn(y[,2], w[,2], l)
@@ -136,8 +138,8 @@ ncol(P)
 
 # Sieve regression
 library(MASS)
-# beta <- function(K) {ginv(t(P[,1:K]) %*% P[,1:K]) %*% t(P[,1:K]) %*% h}
-beta <- function(K) {matrix(lm(h ~ P[,1:K]-1)$coefficients,ncol=1)}    # Alternative OLS coefs
+# beta <- function(K) {ginv(t(P[,1:K]) %*% P[,1:K]) %*% t(P[,1:K]) %*% h}    # Generalized inverse
+beta <- function(K) {matrix(lm(h ~ P[,1:K]-1)$coefficients,ncol=1)}          # lm; no inversion required
 hhat <- function(K) {P[,1:K] %*% beta(K)}
 
 # Leave-one-out CV
@@ -169,9 +171,10 @@ SieveReg <- function (K.max, plotfilename) {
   t.end   <- Sys.time () - t.start    # Timer off
   
   pdf(file = paste(plotfilename, '.pdf', sep=''))
-  plot(ecdf(h), col="GREEN")                            # CDF of h
-  lines(ecdf(P[,1:K.opt] %*% beta(K.opt)), col="BLUE")  # CDF of h.hat
-  lines(ecdf(h.bar), col="RED")                         # CDF of h.bar
+  plot(ecdf(h), col="GREEN", main="", xlab="Hours", ylab="F(Hours)") # CDF of h
+  lines(ecdf(P[,1:K.opt] %*% beta(K.opt)), col="BLUE")               # CDF of h.hat
+  lines(ecdf(h.bar), col="RED")                                      # CDF of h.bar
+  legend("topleft", c("Simulated hours", "Estimated hours", "Expected hours"), lty=c(1,1), col=c("GREEN", "BLUE", "RED"))
   dev.off()
   
   return(list(CV.mat, CV.opt, K.opt, t.end))
@@ -188,12 +191,11 @@ v   <- runif(n, v.m, v.v)
 a  <- 4/3    # Utility fn param; alpha in the write-up is 1/a = 3/4
 
 # Functions from Blomquist and Newey (2002)
-pi        <- function(y,w,v) { pmax(0, ((w)^a - (y*v)) / (w^a+w)) }    # Labor supply
+pi.fn     <- function(y,w,v) { pmax(0, ((w)^a - (y*v)) / (w^a+w)) }    # Labor supply
 pi.bar.fn <- function(y,w)   { 1/(w^a+w)*((w^a-y/2)^(w^a/y >= 1))*
                               ((w^(a*2)/(y*2))^(w^a/y < 1)) }          # Integrating v out
-#pi.inv.fn <- function(y,w,l) { (w^2 - l*(w^2+w)/y) * (l>0)}            # Inverse of pi wrt v
-pi.inv.fn <- function(y,w,l) { ((w^a - l*(w^a+w))/y) * (l>0)}            # Inverse of pi wrt v
-# Notice: inverse not well defined on some part of domain, mu.fn accounts for this
+pi.inv.fn <- function(y,w,l) { ((w^a - l*(w^a+w))/y) * (l>0) }         # Inverse of pi wrt v
+# Notice: inverse not well-defined on some part of domain, mu.fn accounts for this
 mu.fn     <- function(y,w,l) { 
   0 * (0 >= (w^a-l*(w^a+w))/y ) +
   (w^(2*a)-2*l*w^a*(w^a+w) + l^2*(w^a+w)^2)/(2*y*(w^a+w)) * (1 >= (w^a-l*(w^a+w))/y &(w^a-l*(w^a+w))/y >= 0) +
@@ -203,21 +205,17 @@ mu.fn     <- function(y,w,l) {
 # Simulated hours
 h.bar.fn <- function(y,w,l){ pi.bar.fn(y[,2],w[,2]) + mu.fn(y,w,rep(l))[,1] - mu.fn(y,w,rep(l))[,2]}
 h.bar    <- h.bar.fn(y,w,l)
-h.1 <- pi(y[,1],w[,1],v)
-h.2 <- pi(y[,2],w[,2],v)+1e-6
-h.k <- l
-h <- cbind(h.1,h.2,h.k)
-a <- 1/a
-u.1 <- 1/(1-a)*((y[,1]+h.1*w[,1])^(1-a) + (1-h.1)^(1-a))
-u.2 <- 1/(1-a)*((y[,2]+h.2*w[,2])^(1-a) + (1-h.2)^(1-a))+1e-6
-u.k <- 1/(1-a)*((y[,2]+h.k*w[,2])^(1-a) + (1-h.k)^(1-a))
-u <- cbind(u.1,u.2,u.k)
+h.1      <- pi.fn(y[,1],w[,1],v)
+h.2      <- pi.fn(y[,2],w[,2],v)+1e-6
+h.k      <- l
+h        <- cbind(h.1,h.2,h.k)
+a        <- 1/a
+u.1      <- 1/(1-a)*((y[,1]+h.1*w[,1])^(1-a) + (1-h.1)^(1-a))
+u.2      <- 1/(1-a)*((y[,2]+h.2*w[,2])^(1-a) + (1-h.2)^(1-a))+1e-6
+u.k      <- 1/(1-a)*((y[,2]+h.k*w[,2])^(1-a) + (1-h.k)^(1-a))
+u        <- cbind(u.1,u.2,u.k)
 
-h <- apply((pmax(u.1,u.2,u.k)==cbind(u.1,u.2,u.k))*h, 1, sum)
-# sum(h==h.k)
-# sum(h==h.1)
-# sum(h==h.2)
-# plot(l,h)
+h        <- apply((pmax(u.1,u.2,u.k)==cbind(u.1,u.2,u.k))*h, 1, sum)
 
 # Basis
 P <- P.fn(y,w,l)
@@ -225,6 +223,8 @@ ncol(P)
 
 # Estimation
 results2 <- SieveReg(30, 'fig_iso')
+
+
 
 #### Policy simulation ####
 # .a is for `after', .b is for `before'
@@ -263,17 +263,16 @@ SE.m.fn       <- function(K){
   sqrt( t(C(K)) %*% ginv(Q.hat.fn(K)) %*% Sigma.hat.fn(K) %*% ginv(Q.hat.fn(K)) %*% C(K) /rep(n))
 }
 
+# M estimates and st err
 M.hat <- sapply(3:K.pol, theta.fn)
-M.SE  <-sapply(3:K.pol, SE.m.fn)
-plot(M.hat)
-plot(M.SE)
+M.SE  <- sapply(3:K.pol, SE.m.fn)
 
 Additional.term <- colnames(P)[3:K.pol]
 CV <- round(results2[[1]][3:K.pol],4)
-K <- 3:K.pol
+K  <- 3:K.pol
 
 library(xtable)
-table1 <- xtable(cbind(K,Additional.term,CV,round(cbind(M.hat,M.SE),4)),label=NULL)
+table1 <- xtable(cbind(K, Additional.term, CV, round(cbind(M.hat,M.SE),4)), label=NULL)
 print.xtable(table1, type="latex", file="table1.tex", include.rownames=FALSE )
 
 
