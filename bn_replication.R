@@ -136,12 +136,13 @@ ncol(P)
 
 # Sieve regression
 library(MASS)
-beta <- function(K) {ginv(t(P[,1:K]) %*% P[,1:K]) %*% t(P[,1:K]) %*% h}
-# beta <- function(K) {matrix(lm(h ~ P[,1:K]-1)$coefficients,ncol=1)}    # Alternative OLS coefs
+# beta <- function(K) {ginv(t(P[,1:K]) %*% P[,1:K]) %*% t(P[,1:K]) %*% h}
+beta <- function(K) {matrix(lm(h ~ P[,1:K]-1)$coefficients,ncol=1)}    # Alternative OLS coefs
 hhat <- function(K) {P[,1:K] %*% beta(K)}
 
 # Leave-one-out CV
-betaLOO <- function(K, i) {ginv(t(P[-i,1:K]) %*% P[-i,1:K]) %*% t(P[-i,1:K]) %*% h[-i]}
+# betaLOO <- function(K, i) {ginv(t(P[-i,1:K]) %*% P[-i,1:K]) %*% t(P[-i,1:K]) %*% h[-i]}
+betaLOO <- function(K, i) {matrix(lm(h[-i]~P[-i,1:K]-1)$coefficients,ncol=1)}
 ghatLOO <- function(K, i) {P[i,1:K] %*% betaLOO(K, i)}
 
 SSE <- function(K){
