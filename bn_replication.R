@@ -203,14 +203,28 @@ mu.fn     <- function(y,w,l) {
 # Simulated hours
 h.bar.fn <- function(y,w,l){ pi.bar.fn(y[,2],w[,2]) + mu.fn(y,w,rep(l))[,1] - mu.fn(y,w,rep(l))[,2]}
 h.bar    <- h.bar.fn(y,w,l)
-h        <- pi(y[,1],w[,1],v)
+h.1 <- pi(y[,1],w[,1],v)
+h.2 <- pi(y[,2],w[,2],v)+1e-6
+h.k <- l
+h <- cbind(h.1,h.2,h.k)
+a <- 1/a
+u.1 <- 1/(1-a)*((y[,1]+h.1*w[,1])^(1-a) + (1-h.1)^(1-a))
+u.2 <- 1/(1-a)*((y[,2]+h.2*w[,2])^(1-a) + (1-h.2)^(1-a))+1e-6
+u.k <- 1/(1-a)*((y[,2]+h.k*w[,2])^(1-a) + (1-h.k)^(1-a))
+u <- cbind(u.1,u.2,u.k)
+
+h <- apply((pmax(u.1,u.2,u.k)==cbind(u.1,u.2,u.k))*h, 1, sum)
+# sum(h==h.k)
+# sum(h==h.1)
+# sum(h==h.2)
+# plot(l,h)
 
 # Basis
 P <- P.fn(y,w,l)
 ncol(P)
 
 # Estimation
-results2 <- SieveReg(20, 'fig_iso')
+results2 <- SieveReg(30, 'fig_iso')
 
 #### Policy simulation ####
 # .a is for `after', .b is for `before'
@@ -225,7 +239,7 @@ l.a                      <- pmin(1, (b.k)/w.a[,1])
 
 # Generating new basis
 K.opt <- as.integer(results2[3])
-K.pol <- K.opt+5
+K.pol <- K.opt+10
 
 P.a <- P.fn.base(y.a,w.a,l.a)
 P.a <- cbind(rep(1,n), P.a[,colnames(P.a) %in% colnames(P)])
