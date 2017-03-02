@@ -25,7 +25,7 @@
 % Title
 \title{\citet{Blomquist2002}: \\ ``Nonparametric Estimation with Nonlinear Budget Sets'' \\ \smallskip \Large{A Replication Study}}
 \author{Jackson Bunting and Attila Gyetvai\footnote{Department of Economics, Duke University. Emails: \href{mailto:jackson.bunting@duke.edu}{jackson.bunting@duke.edu}, \href{mailto:attila.gyetvai@duke.edu}{attila.gyetvai@duke.edu}. All errors are ours.}}
-\date{\today}
+\date{March 1, 2017}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -45,16 +45,15 @@ To simplify their analysis, \citet{Blomquist2002} look at piecewise linear budge
 We argue that this simplification is not overly restrictive for at least two reasons.
 First, tax policies and means-tested transfers often impose income progressivity through threshold rules for marginal tax rates.
 Combined with fixed hourly wage rates, this results in continuous piecewise budget sets with kinks.
-Second, even if budget sets are not linear anywhere, a piecewise defined first order polynomial is suitable for approximation.
+Second, even if budget sets are not linear anywhere, a piecewise defined first order polynomial is a suitable approximation.
 
 Our replication study is structured the following way:
 In Section \ref{sec:framework} we discuss the theoretical framework.
-In Section \ref{sec:estimation} we review the estimation procedure.
-In Section \ref{sec:ex1} we illustrate the framework and estimate labor supply using simulated budget set and hours data in a simple example.
-Section \ref{sec:ex2} showcases how estimation breaks down when one of the identifying assumptions does not hold.
+In Section \ref{sec:estimation} we review the estimation procedure, the challenges it involves, our solution to these challenges, and our results.
 In Section \ref{sec:policy} we conduct a counterfactual policy analysis.
 Finally Section \ref{sec:conclusion} concludes.
 
+\newpage
 
 \section{Framework}
 \label{sec:framework}
@@ -129,12 +128,17 @@ That is, we regard $v_i$ as the measurement error in nonlabor income.
 We assume that $v_i$ is drawn from a uniform distribution on the unit interval.
 The resulting labor supply function is
 \begin{align*}
-	h_i^* &\equiv \pi (y_i, w_i, v_i) = \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.
+	h_i^* &\equiv \pi (y_i, w_i, v_i) = \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.\footnotemark
 \end{align*}
 \footnotetext{Calculations can be found in Appendix \ref{app:iso}.}
 To ensure that Condition (iii) for identification, zero probability of choosing zero hours, holds, we simulate $w$ and $y$ such that $\frac{w_i^{1/\alpha}}{y_i} > v_i$.
 Since we assume that $v_i \sim U[0, 1]$, this essentially means that we restrict $w_i^{1/\alpha} > y_i$.\footnote{For the sake of generality, our accompanying code does consider the possibility of having a corner solution. However, we generate data such that this never occurs.}
 
+We also explore the possibility of letting hours be linear in individual heterogeneity $v_i$.
+To that end, we assume that preferences can be represented by a Cobb-Douglas utility function with parameters $v_i$ and $(1-v_i)$.
+Using these simulated data, the estimation performs poorly: we include our findings in Appendix \ref{app:CD}.
+
+\medskip
 Once the data is generated, the estimation procedure is easy to implement.
 Two complications arise, though: (1) how to optimally choose the number of approximating terms $K$, and (2) in what order to include basis functions.
 
@@ -171,122 +175,105 @@ We believe this made matrix inversion numerically imprecise.
 However, this issue is only severe when the number of terms becomes large (approximately 25).
 
 
-
 \subsection{Results}
 \label{sec:ex1}
 
-With optimal K, our model matches the data well: (The red line is the known expected labour supply function. The green
-line is observed hours worked, and the blue line is our fitted model.)
- The estimation performs less well
+With optimal $K$, our model matches the data well.
+We plot our results in Figure \ref{fig:est1}.
+The red line is the empirical CDF of the known expected labor supply function. The green
+line is the empirical CDF of the observed hours worked, and the blue line is our fitted model.
+The estimation performs less well
 around the non-smooth parts of the hours distribution---in our DGP,
-these are due to bunching about the kink in the budget constraint
+these are due to bunching about the kink in the budget constraint.
+
 \begin{figure}[H]
 	\centering
-	\caption{Estimation results}
+	\caption{Sieve estimation results under isoelastic utility}
 	\label{fig:est1}
 	\includegraphics[scale=0.6]{fig_iso.pdf}
-\end{figure}
-
-
-
-\textbf{Jackson: I would shift the following section to an appendix, and you could signpost
-  it in the `Generating Data' section}
-\section{Another example}
-\label{sec:ex2}
-
-\begin{align*}
-	\max_{c_i, h_i} \enskip c_i^{1-v_i} (1-h_i)^{v_i} \qquad \text{s.t.} \enskip c_i \leq y_i + w_i h_i
-\end{align*}
-where $v_i$ is an unknown scalar specific to $i$.
-We assume that $v_i$ is drawn from a uniform distribution on $[0, \tfrac{1}{2}]$.
-We need a tighter-than-unit interval to satisfy Condition (iii), nonzero hours choice.
-The resulting labor supply function is
-\begin{align*}
-	h^*_i &\equiv \pi (y_i, w_i, v_i) = 1 - \frac{(1-v_i) y_i}{w_i}.\footnotemark
-\end{align*}
-\footnotetext{Calculations can be found in Appendix \ref{app:CD}.}
-
-As reflected in the example, this doesn't really work.
-Linearity!!
-
+\end{figure} 
 
 
 \section{Policy simulation}
 \label{sec:policy}
 
-Following Sections 3.4 and 5 in \citet{Blomquist2002}, we estimate the percent change in average labor supply from shifting budget sets.
+The real power of the sieves approach shows in estimating not only the outcome function---labor supply in our case---but also functionals of it.
+Following Sections 3.4 and 5 in \citet{Blomquist2002}, we estimate the percent change in average labor supply from shifting budget sets, $M$.
 We assume a minimum wage equal to $\tfrac{4}{10}$ of the mean wage is introduced:
 \begin{align*}
   w_a = \max\left\{\tfrac{4}{10} \mathrm{E}[w_b], w_b\right\}
 \end{align*}
 where, as in \citet{Blomquist2002}, subscripts $a$ and $b$ refer to after and before the policy change.
-We replicate Table I from Section 5.3:
+We replicate their Table I from Section 5.3 in Table \ref{tab:ps}.
 
-\input {table1} \mbox{} \\
+\input{table1manual}
 
 As the first row of \citepos{Blomquist2002} table, the regression in our first row has regressors $(1,y_j,w_j)$.
 Working down the rows, additional terms are added to the basis.
 Entries with two digits indicate terms $y_j^{\text{digit }1}w_j^{\text{digit }2}$ in the power series, and three digits indicate $(y_{j}^{\text{digit }1}w_j^{\text{digit }2} -
 y_{j+1}^{\text{digit }1}w_{j+1}^{\text{digit }2})l_j^{\text{digit }3}$ as in Equations (3.2)-(3.4) of the original paper.
 
-The estimator $M$ can be computed in a simpler way, but we have used the formulas provided by the paper.
+The estimator $\hat{M}$ can be computed in a simpler way, but we have used the formulas provided by the paper.
 Standard errors are computed similarly. 
-Notice, Monte Carlo simulations are unnecessary for this replication,
+Notice that Monte Carlo simulations are unnecessary for this replication
 since there the standard errors are known in closed form.
-Compared to B\&N, our results are less robust to the choice of basis function but, plainly, there are so many differences between our analyses that comparisons are not clarifying.
+Compared to \citet{Blomquist2002}, our results are less robust to the choice of basis function but, plainly, there are so many differences between our analyses that comparisons are not clarifying.
 
-We decided not do include the elasticity functional $E$, since it would be very tedious to take derivatives of the basis function.
+We decided not do include the elasticity functional $E$ in our estimation, since it would be very tedious to take derivatives of the basis function.
+
 
 \section{Conclusion}
 \label{sec:conclusion}
-\begin{itemize}
-\item Estimation approximates simulated data well
-\item However, policy sims sensitive to choice of basis
-\end{itemize}
 
-
+We replicate the influential paper by \citet{Blomquist2002}.
+The goal of this study is to estimate labor supply when the budget set is nonlinear.
+Opposed to previous likelihood-based methods, this paper takes a nonparametric, sieve regression approach to estimate hours.
+We find that the estimation approximates our simulated data well.
+We also simulate the counterfactual policy of introducing a minimum wage, and estimate its effect on labor supply.
+This estimation appears to be sensitive to the choice of the basis.
 
 
 \bibliographystyle{apalike}
 \bibliography{project}
 
+\newpage
+
 \appendix
 
-\section{Derivation of labor supply functions}
-
-\subsection{Isoelastic utility}
-\label{app:iso}
-
-The maximization problem can be equivalently written as
-\begin{align*}
-	&\max_{h_i} \enskip \frac{(y_i v_i + w_i h_i)^{1-\alpha} + (1-h_i)^{1-\alpha}}{1-\alpha}.
-	\intertext{The first-order condition is}
-	0 &= (y_i v_i + w_i h_i^*)^{1-\alpha} \cdot w_i + (1-h_i^*)^{1-\alpha} \cdot (-1).
-	\intertext{Rearranging yields}
-	h_i^* &\equiv \pi (y_i, w_i, v_i) = \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.
-	\intertext{We rule out corner solutions, and thus fulfill the identifying assumption that $\Pr (h=0 |x) = 0$ by ensuring that the numerator is positive.}
-\end{align*}
-We get $\bar{\pi}_i (y_i, w_i)$ by integrating $v_i$ out:
-\begin{align*}
-	\bar{\pi}_i (y_i, w_i) &= \int_0^1 \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} \, d v_i = \left[ \frac{w_i^{1/\alpha} v_i}{w_i^{1/\alpha} + w_i} - \frac{y_i v_i^2}{2 \left( w_i^{1/\alpha} + w_i \right) } \right]_{v_i=0}^1 = \frac{1}{w_i^{1/\alpha} + w_i} \left( w_i^{1/\alpha} - \frac{y_i}{2} \right).
-\end{align*}
-Furthermore, we calculate the inverse of $\pi$ w.r.t $v_i$ as follows:
-\begin{align*}
-	\ell_i &= \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} \\
-	(w_i^{1/\alpha} + w_i) \ell_i &= w_i^{1/\alpha} - y_i v_i \\
-	y_i v_i &= w_i - w_i \ell_i = w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i \\
-	v_i &= \frac{w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i}{y_i} \equiv \pi^{-1} (y_i, w_i, \ell_i)
-\end{align*}
-Finally, we derive $\mu (y_i, w_i, \ell_i)$ as
-\begin{align*}
-	\mu (y_i, w_i, \ell_i) &= \int_0^{\frac{w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i}{y_i}} \left[ \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} - \ell_i \right] \, dv_i \\
-	&= \left[ \frac{1}{w_i^{1/\alpha} + w_i} \left( w_i^{1/\alpha} v_i - \frac{y_i v_i^2}{2} \right) - \ell_i v_i \right]_{v_i=0}^{\frac{w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i}{y_i}} \\
-	&= \left( \frac{w_i^{1/\alpha}}{w_i^{1/\alpha} + w_i} - \ell_i \right) \frac{w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i}{y_i} - \frac{\left[ w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i \right]^2}{2 y_i} \\
-	&= \frac{\left[ w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i \right]^2}{(w_i^{1/\alpha} + w_i) y_i} - \frac{\left[ w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i \right]^2}{2 y_i}
-\end{align*}
-
-\subsection{Cobb-Douglas utility}
+\section{Cobb-Douglas utility}
 \label{app:CD}
+
+\citet{Blomquist2002} warn to let hours be nonlinear in the individual heterogeneity term $v_i$.
+We wondered what happens to the estimation when we disregard their warning, and conducted the following analysis:
+We assume preferences are now represented by a Cobb-Douglas utility function with $v_i$ as its parameter.
+That is, individual heterogeneity now is thought to capture heterogeneous preferences towards consumption and leisure.
+
+Under our new assumption on the utility function, individual $i$ solves the following optimization problem:
+\begin{align*}
+	\max_{c_i, h_i} \enskip c_i^{1-v_i} (1-h_i)^{v_i} \qquad \text{s.t.} \enskip c_i \leq y_i + w_i h_i.
+\end{align*}
+We assume that $v_i$ is drawn from a uniform distribution on $[0, \tfrac{1}{2}]$.
+We need a tighter-than-unit interval to satisfy Condition (iii), nonzero hours choice.
+The resulting labor supply function is
+\begin{align*}
+	h^*_i &\equiv \pi (y_i, w_i, v_i) = 1 - \frac{(1-v_i) y_i}{w_i}.\footnotemark
+\end{align*}
+\footnotetext{Calculations are shown in the end of this appendix.}
+That is, $h^*_i$ is indeed linear in $v_i$.
+
+We present our results in Figure \ref{fig:est2}.
+As the figure shows, our estimation performs very poorly.
+The optimal choice of $K$ is 1, which is not surprising given the linearity of hours in $v_i$.
+
+\begin{figure}[H]
+	\centering
+	\caption{Estimation results under Cobb-Douglas utilities}
+	\label{fig:est2}
+	\includegraphics[scale=0.55]{fig_CD.pdf}
+\end{figure}
+
+
+\subsubsection*{Derivation of labor supply}
 
 The maximization problem can be equivalently written as
 \begin{align*}
@@ -316,6 +303,40 @@ Finally, we derive $\mu (y_i, w_i, \ell_i)$ as
 	&= 2 \cdot \left[ (1-\ell_i) v_i - \frac{v_i^2}{2} \frac{w_i + y_i}{w_i} \right]_{v_i = 0}^{\min \left\lbrace \frac{1}{2}, \frac{w_i (1-\ell_i)}{w_i + y_i} \right\rbrace} \\
 	&= 2 \cdot \min \left\lbrace \frac{1-\ell_i}{2} - \frac{w_i + y_i}{8 w_i} , \enskip \frac{w_i (1-\ell_i)^2}{w_i + y_i} - \frac{w_i^2 (1-\ell_i)^2}{2 (w_i + y_i)^2} \frac{w_i + y_i}{w_i} \right\rbrace \\
 	&= \min \left\lbrace \frac{3}{4} - \frac{y_i}{4 w_i} - \frac{\ell_i}{2} , \enskip \frac{w_i (1-\ell_i)^2}{w_i + y_i} \right\rbrace
+\end{align*}
+
+
+\bigskip
+
+\section{Derivation of labor supply under isoelastic utility}
+\label{app:iso}
+
+The maximization problem can be equivalently written as
+\begin{align*}
+	&\max_{h_i} \enskip \frac{(y_i v_i + w_i h_i)^{1-\alpha} + (1-h_i)^{1-\alpha}}{1-\alpha}.
+	\intertext{The first-order condition is}
+	0 &= (y_i v_i + w_i h_i^*)^{1-\alpha} \cdot w_i + (1-h_i^*)^{1-\alpha} \cdot (-1).
+	\intertext{Rearranging yields}
+	h_i^* &\equiv \pi (y_i, w_i, v_i) = \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.
+	\intertext{We rule out corner solutions, and thus fulfill the identifying assumption that $\Pr (h=0 |x) = 0$ by ensuring that the numerator is positive.}
+\end{align*}
+We get $\bar{\pi}_i (y_i, w_i)$ by integrating $v_i$ out:
+\begin{align*}
+	\bar{\pi}_i (y_i, w_i) &= \int_0^1 \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} \, d v_i = \left[ \frac{w_i^{1/\alpha} v_i}{w_i^{1/\alpha} + w_i} - \frac{y_i v_i^2}{2 \left( w_i^{1/\alpha} + w_i \right) } \right]_{v_i=0}^1 = \frac{1}{w_i^{1/\alpha} + w_i} \left( w_i^{1/\alpha} - \frac{y_i}{2} \right).
+\end{align*}
+Furthermore, we calculate the inverse of $\pi$ w.r.t $v_i$ as follows:
+\begin{align*}
+	\ell_i &= \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} \\
+	(w_i^{1/\alpha} + w_i) \ell_i &= w_i^{1/\alpha} - y_i v_i \\
+	y_i v_i &= w_i - w_i \ell_i = w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i \\
+	v_i &= \frac{w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i}{y_i} \equiv \pi^{-1} (y_i, w_i, \ell_i)
+\end{align*}
+Finally, we derive $\mu (y_i, w_i, \ell_i)$ as
+\begin{align*}
+	\mu (y_i, w_i, \ell_i) &= \int_0^{\frac{w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i}{y_i}} \left[ \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i} - \ell_i \right] \, dv_i \\
+	&= \left[ \frac{1}{w_i^{1/\alpha} + w_i} \left( w_i^{1/\alpha} v_i - \frac{y_i v_i^2}{2} \right) - \ell_i v_i \right]_{v_i=0}^{\frac{w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i}{y_i}} \\
+	&= \left( \frac{w_i^{1/\alpha}}{w_i^{1/\alpha} + w_i} - \ell_i \right) \frac{w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i}{y_i} - \frac{\left[ w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i \right]^2}{2 y_i} \\
+	&= \frac{\left[ w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i \right]^2}{(w_i^{1/\alpha} + w_i) y_i} - \frac{\left[ w_i^{1/\alpha} - (w_i^{1/\alpha} + w_i) \ell_i \right]^2}{2 y_i}
 \end{align*}
 
 
