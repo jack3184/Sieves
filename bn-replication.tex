@@ -115,8 +115,8 @@ Following \citet{Blomquist2002}, we focus on power series approximations of the 
 Not surprisingly, the first row approximates $\bar{\pi} (y_J, w_J)$ whereas the second row is an approximation for $\sum_{j=1}^{J-1} [\mu(y_j, w_j, \ell_j) - \mu(y_{j+1}, w_{j+1}, \ell_j)]$.
 
 \subsection{Generating data}
-Since the paper is based on real data, which we do not have,
-it is necessary to create our own data. We suppose that an individual $i$ is endowed with $y_i$ nonlabor income and 1 unit of time, which she can divide between work $h_i$ and leisure $1-h_i$.
+Since the paper is based on real data, which we do not have, it is necessary to create our own data.
+We suppose that an individual $i$ is endowed with $y_i$ nonlabor income and 1 unit of time, which she can divide between work $h_i$ and leisure $1-h_i$.
 Therefore she can spend up to $y_i + w_i h_i$ where $w_i$ is her wage rate.
 Assume for the moment that her budget set is linear; we introduce nonlinearities in a moment.
 
@@ -129,10 +129,10 @@ That is, we regard $v_i$ as the measurement error in nonlabor income.
 We assume that $v_i$ is drawn from a uniform distribution on the unit interval.
 The resulting labor supply function is
 \begin{align*}
-	h_i^* &\equiv \pi (y_i, w_i, v_i) = \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.
+	h_i^* &\equiv \pi (y_i, w_i, v_i) = \frac{w_i^{1/\alpha} - y_i v_i}{w_i^{1/\alpha} + w_i}.\footnotemark
 \end{align*}
 \footnotetext{Calculations can be found in Appendix \ref{app:iso}.}
-To ensure that Condition (iii) for identification, zero probability of choosing zero hours, holds, we simulate $w$ and $y$ such that $\frac{w_i^{1/\alpha}}{y_i} > v_i$.
+To ensure that Condition (iii) for identification---zero probability of choosing zero hours---holds, we simulate $w$ and $y$ such that $\frac{w_i^{1/\alpha}}{y_i} > v_i$.
 Since we assume that $v_i \sim U[0, 1]$, this essentially means that we restrict $w_i^{1/\alpha} > y_i$.\footnote{For the sake of generality, our accompanying code does consider the possibility of having a corner solution. However, we generate data such that this never occurs.}
 
 Once the data is generated, the estimation procedure is easy to implement.
@@ -142,7 +142,7 @@ Two complications arise, though: (1) how to optimally choose the number of appro
 
 We follow \citepos{Blomquist2002} lead in making an optimal choice of $K$.
 We implement a leave-one-out cross validation procedure.
-In a nutshell, we choose that $K$ which minimizes the asymptotic mean squared error.
+In a nutshell, we choose the value of $K$ which minimizes the asymptotic mean squared error.
 Technically we minimize the scale-normalized sum of squared one-step ahead forecast errors from predictions for $i$ using all observations but the $i$th.
 
 A final remark on the optimal choice of $K$: on top of choosing one $K$, the econometrician needs to also set a maximum number of possible terms to consider.

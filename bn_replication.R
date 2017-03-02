@@ -188,11 +188,11 @@ v   <- runif(n, v.m, v.v)
 a  <- 4/3    # Utility fn param; alpha in the write-up is 1/a = 3/4
 
 # Functions from Blomquist and Newey (2002)
-pi        <- function(y,w,v) { pmax(0, ((w)^a - (y*v)) / (w^a+w)) }    # Labor supply
+pi.fn     <- function(y,w,v) { pmax(0, ((w)^a - (y*v)) / (w^a+w)) }    # Labor supply
 pi.bar.fn <- function(y,w)   { 1/(w^a+w)*((w^a-y/2)^(w^a/y >= 1))*
                               ((w^(a*2)/(y*2))^(w^a/y < 1)) }          # Integrating v out
-#pi.inv.fn <- function(y,w,l) { (w^2 - l*(w^2+w)/y) * (l>0)}            # Inverse of pi wrt v
-pi.inv.fn <- function(y,w,l) { ((w^a - l*(w^a+w))/y) * (l>0)}            # Inverse of pi wrt v
+#pi.inv.fn <- function(y,w,l) { (w^2 - l*(w^2+w)/y) * (l>0)}           # Inverse of pi wrt v
+pi.inv.fn <- function(y,w,l) { ((w^a - l*(w^a+w))/y) * (l>0)}          # Inverse of pi wrt v
 # Notice: inverse not well defined on some part of domain, mu.fn accounts for this
 mu.fn     <- function(y,w,l) { 
   0 * (0 >= (w^a-l*(w^a+w))/y ) +
@@ -201,8 +201,13 @@ mu.fn     <- function(y,w,l) {
 }
 
 # Simulated hours
-h.bar.fn <- function(y,w,l){ pi.bar.fn(y[,2],w[,2]) + mu.fn(y,w,rep(l))[,1] - mu.fn(y,w,rep(l))[,2]}
-h.bar    <- h.bar.fn(y,w,l)
+#h.bar.fn <- function(y,w,l){ pi.bar.fn(y[,2],w[,2]) + mu.fn(y,w,rep(l))[,1] - mu.fn(y,w,rep(l))[,2]}
+#h.bar    <- h.bar.fn(y,w,l)
+pi.bar <- pi.bar.fn(y[,2], w[,2])
+mu.1   <- mu.fn(y[,1], w[,1], l)
+mu.2   <- mu.fn(y[,2], w[,2], l)
+h.bar  <- pi.bar + mu.1 - mu.2
+<<<<<<< Updated upstream
 h.1 <- pi(y[,1],w[,1],v)
 h.2 <- pi(y[,2],w[,2],v)+1e-6
 h.k <- l
@@ -218,6 +223,27 @@ h <- apply((pmax(u.1,u.2,u.k)==cbind(u.1,u.2,u.k))*h, 1, sum)
 # sum(h==h.1)
 # sum(h==h.2)
 # plot(l,h)
+=======
+
+h.1  <- pmin(pmax(0, pi.fn(y[,1], w[,1], v)), 1)
+h.2  <- pmin(pmax(0, pi.fn(y[,2], w[,2], v)), 1)
+# Bunching at the kink
+i.l1      <- h.1 >= l
+i.l2      <- h.2 <= l
+h.1[i.l1] <- l[i.l1]
+h.2[i.l2] <- l[i.l2]
+
+c.1  <- y[,1] + w[,1]*h.1
+c.2  <- y[,2] + w[,2]*h.2
+U.1  <- (c.1^(1-1/a) + (1-h.1)^(1-1/a))/(1-1/a)
+U.2  <- (c.2^(1-1/a) + (1-h.2)^(1-1/a))/(1-1/a)
+i.U  <- U.2>=U.1
+
+h       <- matrix(NA, nrow=n, ncol=1)
+h[i.U]  <- h.2[i.U]
+h[!i.U] <- h.1[!i.U]
+# h        <- pi(y[,1],w[,1],v)
+>>>>>>> Stashed changes
 
 # Basis
 P <- P.fn(y,w,l)
